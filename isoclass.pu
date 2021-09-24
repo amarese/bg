@@ -1,0 +1,101 @@
+@startuml nodeMapClassDiagram
+class GraphIsomorphism{
+	-cells : list<Cell>
+	-checkMemory : map<Cell,Cell>
+	-preprocess(cell1 : Cell, cell2 : Cell, mappingResult : set<CellPair>) : void
+	-eliminateNoCandidateVertices(cell1 : Cell, cell2 : Cell) : void
+	-eliminateNoCandidateEdges(cell1 : Cell, cell2 : Cell) : void
+	-generatePossibleCellPair(cell1 : Cell, cell2 : Cell, mappingResult : set<CellPair>) : void
+	-validate(cell1 : Cell, cell2 : Cell) : true
+	+MatchingCells(cell1 : Cell, cell2 : Cell, mappingResult : set<CellPair>) : boolean	
+}
+
+GraphIsomorphism --> "2" Cell : "-cells"
+
+GraphIsomorphism o-- CellPair
+
+class CellPair{
+	-cell1 : Cell
+	-cell2 : Cell
+}
+
+CellPair --> Cell
+
+class Element{
+	-attribute : string
+	-adjElements : set<Element> 
+	'terminal의 neighborhoods는 net, and vice versa
+	'terminal인 경우 하나는 cell 내부를 연결하는 net, [하나는 외부를 연결하는 net]
+	+setAttribute(att : string) : void
+	+addAdjElement(adj : Element) : void
+	+{abstract}getType() const : ElemType
+	+getAttribute() const : string
+	+getAdjElements() const : list<Element>
+}
+
+class Net{
+	+getType() const : ElemType
+}
+
+class Terminal{
+	-cell : Cell
+	-features : list<Feature>
+	+getType() const : ElemType
+}
+
+Terminal -> "1..*" Feature : "-features"
+Terminal "1" <- Feature : "-targetCell"
+
+Element <|-- Net 
+Element <|-- Terminal 
+
+enum ElemType
+ElemType : terminal
+ElemType : net
+
+Element -> ElemType
+
+class Cell {
+	-terminals : list<Terminal>
+	-memberCells : set<Cell>
+	-isMatched : boolean
+	-matchingCell : Cell
+	-features : list<Feature>
+	+addTerminal(term : Element) : void
+	+addMemberCell(cell : Cell) : void
+	+getTerminals() : list<Element>
+	+getMemberCells() : list<Cell>
+	+calculateFeatures() : void
+}
+
+Cell -->"1..*" Feature : "features"
+
+
+Cell -> "1..*" Terminal : "-terminals"
+Cell "1" <- Terminal : "-cell"
+
+class Feature{
+	-targetCell : Terminal
+	+calcFeature() : void
+}
+
+class SIFeature{
+	-featureValue : float
+	+calculateFeature() : void
+}
+class LIFeature{
+	-featureValue : set<Terminal>
+	+calculateFeature() : void
+}
+class TIFeature{
+	-featureValue : set<set<Terminal>>
+	+calculateFeature() : void
+}
+
+Feature <|-- SIFeature
+Feature <|-- LIFeature
+Feature <|-- TIFeature
+
+
+
+@enduml
