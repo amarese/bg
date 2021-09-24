@@ -1,0 +1,57 @@
+@startuml nodeMapSequenceDiagram
+_User -> _Core: MatchingCells(cell1:Cell, cell2:Cell, mappingResult:set<mappingPair>)
+_Core -> cell1_Cell : calculateFeatures()
+_Core <-- cell1_Cell 
+_Core -> cell2_Cell : calculateFeatures()
+_Core <-- cell2_Cell 
+
+_Core->_Core:preprocess(cell1:Cell, cell2:Cell, mappingReesult:set<mappingPair>)
+_Core->cell1_Cell:getCellSet()
+_Core<--cell1_Cell: cell1.cellSet
+loop _cell in cell1.cellSet
+_Core -> cell2_Cell: contains(_cell)
+alt cell2 contains _cell
+_Core <-- cell2_Cell: true
+
+else 
+_Core <-- cell2_Cell: false
+end
+end
+_Core<--_Core
+_User -> _Core: path1: String, path2: String\n(두 graph의 logical 같은 subgraph들 검색 요청)
+
+_Core -> _GraphBuilder: loadFile(path1: String, path2: String)\n(path1과 path2에 저장된 edge 정보들로 graph G1, G2 생성)
+_GraphBuilder -> _Graph: Graph(path1: String)\n(path1로부터 G1 생성)
+return G1: Graph
+_GraphBuilder -> _Graph: Graph(path2: String)\n(patt2로부터 G2 생성)
+return G2: Graph
+_Core <-- _GraphBuilder: Graph, G2: Graph
+
+_User -> _Core: loadCellInfor(path1: String, path2: String)\n(한 cell에 관련된 node 정보들)
+_User <-- _Core
+
+_User -> _Core: mappingNode()
+
+_Core -> _Comparator: mappingNode(G1: Graph, G2: Graph)
+_Comparator -> G1_Graph: computeFeature()\n(node들의 feature 계산)
+_Comparator <-- G1_Graph
+
+_Comparator -> G2_Graph: computeFeature()\n(node들의 feature 계산)
+_Comparator <-- G2_Graph
+
+loop 
+_Comparator -> G1_Graph: graphIsomorphism(subgraph: Graph)\n(G1에서 subgraph의 isomorphism을 찾음)
+_Comparator <-- G1_Graph: foundSubgraph: Graph\n(subgraph와 mapping되는 subgraph를 return)
+_Comparator -> _Comparator: updateGraphStructure(subgraph: Graph, foundSubgraph: Graph)\n(graph의 mapping 정보를 update)
+
+_Comparator -> G2_Graph: graphIsomorphism(subgraph: Graph)\n(G1에서 subgraph의 isomorphism을 찾음)
+_Comparator <-- G2_Graph: foundSubgraph: Graph\n(subgraph와 mapping되는 subgraph를 return)
+_Comparator -> _Comparator: updateGraphStructure(subgraph: Graph, foundSubgraph: Graph)\n(graph의 mapping 정보를 update)
+end 
+
+
+
+_Core <-- _Comparator: List<MappedNode>
+_User <-- _Core: mappedNode: list<MappedNode>\n(logical하게 같은 subgraph의 list)
+
+@enduml
