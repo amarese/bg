@@ -1,0 +1,95 @@
+MatchingCells(
+		cell1, cell2, // cell1을 cell2에서 찾음 (hierarchy 구조를 갖고 있을 수 있음)
+		mappingResult // cell들의 매칭 결과가 저장되는 자료구조
+		)
+	if mappingResult.doCoverAllVertices == true
+		return true
+	cell1.calculateFeatures() // 각 cell의 feature를 계산
+	cell2.calculateFeatures()
+	preprocess(cell1, cell2, mappingResult) // preprocess 1. 이름이 같은 cell은 mapping 시킴
+	eliminateNoCadidateVertices(cell1, cell2)
+	eliminateNoCadidateEdges(cell1, cell2)
+	C = generatePossibleCellPair(cell1,cell2,mappingResult)
+	foreach c in C
+		mappingResult' = mappingResult + c
+		if MatchingCells(cell1,cell2,mappingResult') == true
+			return true
+		mappingResult = mappingResult' - c
+
+
+
+calculateFeatures(cell) // 각 cell의 feature를 계산
+	if cell.doCalculateFeature == true
+		return
+		
+	// SI Feature
+	for i in 1 to SIZE_OF_SI_FEATURE
+		if i == 1
+			cell.SIFeature[i] = |cell.adjCells|
+		else 
+			cell.SIFeature[i] = 0
+			foreach c in cell.adjCells 
+				cell.SIFeature[i] += c.SIFeature[i-1]
+
+	// LI Feature
+	for i in 1 to SIZE_OF_LI_FEATURE
+		if i == 1	
+			cell.LIFeature[i] = cell.adjCells
+		else
+			foreach c in cell.adjCells 
+				foreach t in c.LIFeature[i-1]
+					cell.LIFeature[i].add(t)
+
+	// TI Feature
+	for i in 1 to SIZE_OF_TI_FEATURE
+		if i == 1
+			cell.TIFeature[i] = {cell.adjCells}
+		else
+			foreach c in cell.adjCells 
+				cell.LIFeature[i].add({c.LIFeature[i-1]})
+
+preprocess(cell1, cell2, mappingResult) // cell1과 cell2에서 같은 이름을 갖는 cell을 mapping 시킴
+	foreach _cell in cell1.cellSet
+		if cell2.cellNameMap.contains(_cell.name)
+			mapping(_cell,cell2.cellNameMap[_cell.name])
+			MatchingCells(_cell,cell2.cellNameMap[_cell.name],mappingResult)
+	
+generatePossibleCellPair(
+		cell1,
+		cell2,
+		mappingResult
+		)
+	C = {}
+	foreach (c1,c2) in mappingResult
+		for _c1 in c1.neighborhoods
+			if _c1.isMatched == true
+				continue
+			for _c2 in c2.neighborhoods
+				if _c2.isMatched == true
+					continue
+			if validate(_c1, _c2) == true
+				C = C \cup (_c1,_c2)
+	return C
+
+
+validate(cell1, cell2)
+	if checkMemory[cell1,cell2] != undefined
+		return checkMemory[cell1,cell2]
+
+	for i in 1 to SIZE_OF_SI_FEATURE
+		if cell1.SIFeature[i]>cell2.SIFeature[i]
+			checkMemory[cell1,cell2] = false
+			return false
+
+	for i in 1 to SIZE_OF_LI_FEATURE
+		if cell2.LIFeature[i] \not\contain cell1.LIFeature[i]
+			checkMemory[cell1,cell2] = false
+			return false
+
+	for i in 1 to SIZE_OF_TI_FEATURE
+		if cell2.TIFeature[i] \not\contain cell1.TIFeature[i]
+			checkMemory[cell1,cell2] = false
+			return false
+	
+	checkMemory[cell1,cell2] = true
+	return true
