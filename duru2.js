@@ -775,7 +775,7 @@ while (true) {
         let tempVal = Math.round(elem.aveCouple * 100) / 100 + "회 <br>( "
         for (let p in elem.couple) {
             if (idxTempVal % 4 == 3) {
-                tempVal += "<br>"
+                //tempVal += "<br>"
             }
             tempVal += (p + ":" + elem.couple[p] + "회 ")
 
@@ -846,7 +846,7 @@ while (true) {
         let tempVal = Math.round(elem.aveCouple * 100) / 100 + "회 <br>( "
         for (let p in elem.couple) {
             if (idxTempVal % 4 == 3) {
-                tempVal += "<br>"
+                //tempVal += "<br>"
             }
             tempVal += (p + ":" + elem.couple[p] + "회 ")
 
@@ -918,7 +918,7 @@ while (true) {
         let tempVal = elem.firstContact.size + "명 <br>( "
         for (let p of elem.firstContact) {
             if (idxTempVal % 5 == 4) {
-                tempVal += "<br>"
+                //tempVal += "<br>"
             }
             tempVal += (p + " ")
 
