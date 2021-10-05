@@ -733,7 +733,7 @@ let entryIdx = 0
 
 while (true) {
     let elem = dataScores[idx]
-    if (elem.simpleCount < 5) {
+    if (elem.simpleCount < 8) {
         ++idx
         continue
     }
@@ -873,10 +873,11 @@ idx = 0
 prevScore = 0
 shownIdx = 0
 entryIdx = 0
+let simplecountthres = 7
 
 while (true) {
     let elem = dataScores[idx]
-    if (elem.simpleCount < 5) {
+    if (elem.simpleCount < simplecountthres) {
         ++idx
         continue
     }
