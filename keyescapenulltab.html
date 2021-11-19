@@ -1,0 +1,88 @@
+import sys
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.expected_conditions import presence_of_element_located
+import time
+import selenium.common.exceptions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import datetime
+from selenium import webdriver
+
+targetDate = "2021-11-27"
+themaID = "56"
+
+options = webdriver.ChromeOptions()
+options.add_argument("--auto-open-devtools-for-tabs")
+
+driver = webdriver.Chrome(options=options)
+wait = WebDriverWait(driver, 10)
+
+targetdate = datetime.date.fromisoformat(targetDate)
+
+driver.get("https://keyescape.co.kr/web/home.php?go=rev.make")
+wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'day_index')))
+
+jsCommand = "javascript:fun_days_select('" + targetdate.__str__() + "','" + str(targetdate.day - 1) + "')"
+driver.execute_script(jsCommand)
+wait.until(EC.visibility_of_element_located((By.ID,'theme_data')))
+
+jsCommand = "javascript:fun_theme_select('"+themaID+"','0')"
+driver.execute_script(jsCommand)
+
+wait.until(EC.visibility_of_element_located((By.ID, 'theme_time_data')))
+
+timeTable = driver.find_element_by_id('theme_time_data')
+
+#userInput = input("select time: ").split('/')
+userInput = "10:00".split('/')
+timeCode = []
+for item in timeTable.find_elements_by_css_selector("a"):
+    for _u in userInput:
+        if item.text == _u:
+            startIdx = item.get_attribute('href').find("'")
+            endIdx = item.get_attribute('href').find("'",startIdx+1)
+            timeCode.append(item.get_attribute('href')[startIdx+1:endIdx])
+
+numOfTabs = int(input("input the number of tabs: "))
+
+for _ in range(numOfTabs-1):
+    driver.execute_script('window.open("about:blank", "_blank");')
+
+tabs = driver.window_handles
+
+for _i in range(numOfTabs):
+    driver.switch_to_window(tabs[_i])
+
+    driver.get("https://keyescape.co.kr/web/home.php?go=rev.make")
+    wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'day_index')))
+
+    tempval = datetime.datetime.now()+datetime.timedelta(days=5)
+    tempval2 = tempval.strftime('%Y-%m-%d')
+    refDate = datetime.date.fromisoformat(tempval2)
+
+    driver.get("https://keyescape.co.kr/web/home.php?go=rev.make")
+    wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'day_index')))
+
+    jsCommand = "javascript:fun_days_select('" + refDate.__str__() + "','" + str(refDate.day - 1) + "')"
+    driver.execute_script(jsCommand)
+    wait.until(EC.visibility_of_element_located((By.ID,'theme_data')))
+
+    jsCommand = "javascript:fun_theme_select('5','0')"
+    driver.execute_script(jsCommand)
+
+    wait.until(EC.visibility_of_element_located((By.ID, 'theme_time_data')))
+
+    timeTable = driver.find_element_by_id('theme_time_data')
+    driver.execute_script(timeTable.find_elements_by_css_selector('a')[0].get_attribute('href'))
+    driver.execute_script('javascript:fun_submit()')
+
+    wait.until(EC.visibility_of_element_located((By.ID, 'but_exe')))
+
+
+
+
+print(timeCode)
+print(userInput)
