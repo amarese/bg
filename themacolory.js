@@ -256,13 +256,23 @@ function funcEval() {
 
     }
 
-    let targetTable = document.getElementById('tabResult').firstElementChild
 
-    while (targetTable.childElementCount > 1) {
-        targetTable.removeChild(targetTable.children[1])
+
+    let targetTable = document.getElementById('tabResult')
+    while (targetTable.childElementCount > 0) {
+        targetTable.removeChild(targetTable.children[0])
+    }
+
+    if (satisfiedEntries.length == 0) {
+        alert("해당 테마가 없습니다!")
+        return
     }
     satisfiedEntries.sort(sortTuple)
 
+    let th = document.createElement('tr')
+    th.className = "result"
+    th.innerHTML = '<th class="result">위1치</th><th class="result">매장명</th><th class="result">테마명</th><th class="result">평점</th><th class="result">난이도</th><th class="result">후기수</th>'
+    targetTable.appendChild(th)
     for (let idx = 0; idx < satisfiedEntries.length; idx++) {
         if (idx == 100) {
             break
