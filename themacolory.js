@@ -1,9 +1,5 @@
 let themaInfor = []
 
-
-
-//document.getElementById('tabResult').style.width = document.documentElement.clientWidth * 0.95 + "px"
-
 function showString(str) {
     console.log("===" + str + "===")
 }
@@ -13,9 +9,11 @@ let sortPriDesc = [true, true, true, true, true, true]
 
 function sortTuple(a, b) {
     for (let idx = 0; idx < sortPriority.length; idx++) {
-        if (a[sortPriority[idx]] > b[sortPriority[idx]]) {
+        let first = a[sortPriority[idx]]
+        let second = b[sortPriority[idx]]
+        if (first > second) {
             return sortPriDesc[idx] == true ? -1 : 1
-        } else if (a[sortPriority[idx]] < b[sortPriority[idx]]) {
+        } else if (first < second) {
             return sortPriDesc[idx] == true ? 1 : -1
         }
     }
@@ -23,10 +21,7 @@ function sortTuple(a, b) {
 }
 
 
-var allText
-let contPerLocation
-let contPerShop
-let contPerThema
+
 
 let vecLocName = []
 
@@ -38,6 +33,11 @@ const DIFF = 4
 const COUNT = 5
 
 function loadFromFile() {
+
+    let allText
+    let contPerLocation
+    let contPerShop
+    let contPerThema
 
 
     let rawFile = new XMLHttpRequest();
@@ -86,6 +86,9 @@ function loadFromFile() {
                 tuple[TITLE] = title
                 tuple[RATE] = Number(rate)
                 tuple[DIFF] = Number(diff)
+                if (isNaN(tuple[DIFF]) == true) {
+                    tuple[DIFF] = 0
+                }
                 tuple[COUNT] = Number(count)
                 themaInfor.push(tuple)
 
@@ -145,6 +148,10 @@ function funcDrawInit() {
                 queryLoc[vecLocName[idx]] = false
             }
 
+        }
+        if (idx == 0) {
+            queryLoc[vecLocName[idx]] = true
+            newElem.checked = true
         }
         tdLoc.appendChild(newElem)
         let newElem2 = document.createElement('span')
@@ -221,6 +228,72 @@ function funcChangeVal(e, scale) {
 
 let satisfiedEntries
 
+function funcSetSortPri(idx) {
+    let tempval = sortPriority[0]
+    sortPriority = [0]
+    sortPriority[0] = tempval
+
+    if (sortPriority[0] == idx) {
+        sortPriDesc[0] = !sortPriDesc[0]
+    } else {
+        sortPriority[0] = idx
+        sortPriDesc[0] = true
+    }
+    console.log("clicked")
+    funcDrawResult()
+}
+
+let headContents = ['위치', '매장', '테마', '평점', '난이도', '후기수']
+
+function funcDrawResult() {
+    let targetTable = document.getElementById('tabResult')
+    while (targetTable.childElementCount > 0) {
+        targetTable.removeChild(targetTable.children[0])
+    }
+
+    if (satisfiedEntries.length == 0) {
+        alert("해당 테마가 없습니다!")
+        return
+    }
+    satisfiedEntries.sort(sortTuple)
+
+    let trHead = document.createElement('tr')
+    trHead.className = "result"
+
+    for (let idx = 0; idx < headContents.length; idx++) {
+        let th = document.createElement('th')
+        th.className = 'result'
+        if (sortPriority[0] == idx) {
+            if (sortPriDesc[0] == true) {
+                th.innerHTML = headContents[idx] + "↓"
+            } else {
+                th.innerHTML = headContents[idx] + "↑"
+            }
+        } else {
+            th.innerHTML = headContents[idx]
+        }
+        th.onclick = function() { funcSetSortPri(idx) }
+        trHead.appendChild(th)
+    }
+
+    //th.innerHTML = '<th class="result">위1치</th><th class="result">매장명</th><th class="result">테마명</th><th class="result">평점</th><th class="result">난이도</th><th class="result">후기수</th>'
+    targetTable.appendChild(trHead)
+    for (let idx = 0; idx < satisfiedEntries.length; idx++) {
+        if (idx == 100) {
+            break
+        }
+        let tr = document.createElement('tr')
+        tr.className = "result"
+        targetTable.appendChild(tr)
+        for (let idx2 = 0; idx2 <= COUNT; idx2++) {
+            let td = document.createElement('td')
+            td.className = "result"
+            td.innerHTML = satisfiedEntries[idx][idx2]
+            tr.appendChild(td)
+        }
+    }
+}
+
 function funcEval() {
 
     let minRate = Number(document.getElementById('spanRateMin').innerHTML)
@@ -256,36 +329,8 @@ function funcEval() {
 
     }
 
+    funcDrawResult()
 
 
-    let targetTable = document.getElementById('tabResult')
-    while (targetTable.childElementCount > 0) {
-        targetTable.removeChild(targetTable.children[0])
-    }
-
-    if (satisfiedEntries.length == 0) {
-        alert("해당 테마가 없습니다!")
-        return
-    }
-    satisfiedEntries.sort(sortTuple)
-
-    let th = document.createElement('tr')
-    th.className = "result"
-    th.innerHTML = '<th class="result">위1치</th><th class="result">매장명</th><th class="result">테마명</th><th class="result">평점</th><th class="result">난이도</th><th class="result">후기수</th>'
-    targetTable.appendChild(th)
-    for (let idx = 0; idx < satisfiedEntries.length; idx++) {
-        if (idx == 100) {
-            break
-        }
-        let tr = document.createElement('tr')
-        tr.className = "result"
-        targetTable.appendChild(tr)
-        for (let idx2 = 0; idx2 <= COUNT; idx2++) {
-            let td = document.createElement('td')
-            td.className = "result"
-            td.innerHTML = satisfiedEntries[idx][idx2]
-            tr.appendChild(td)
-        }
-    }
 
 }
