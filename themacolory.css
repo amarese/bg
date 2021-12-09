@@ -1,10 +1,6 @@
 body {
-    padding: 5px;
-    width: 100%;
-}
-
-table {
-    width: 100%;
+    padding: 3px;
+    margin: 3px
 }
 
 table.result {
@@ -16,7 +12,7 @@ tr.result,
 th.result,
 td.result {
     border: 1px solid #444444;
-    padding: 10px;
+    padding: 5px;
     word-break: break-all;
     text-align: center
 }
