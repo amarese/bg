@@ -11,6 +11,12 @@ function sortTuple(a, b) {
     for (let idx = 0; idx < sortPriority.length; idx++) {
         let first = a[sortPriority[idx]]
         let second = b[sortPriority[idx]]
+        if (isNaN(first) == true) {
+            first = 0
+        }
+        if (isNaN(second) == true) {
+            second = 0
+        }
         if (first > second) {
             return sortPriDesc[idx] == true ? -1 : 1
         } else if (first < second) {
@@ -86,9 +92,7 @@ function loadFromFile() {
                 tuple[TITLE] = title
                 tuple[RATE] = Number(rate)
                 tuple[DIFF] = Number(diff)
-                if (isNaN(tuple[DIFF]) == true) {
-                    tuple[DIFF] = 0
-                }
+
                 tuple[COUNT] = Number(count)
                 themaInfor.push(tuple)
 
@@ -312,7 +316,9 @@ function funcEval() {
     satisfiedEntries = []
 
     for (let idx = 0; idx < themaInfor.length; idx++) {
-        if (themaInfor[idx][RATE] < minRate ||
+        if (isNaN(themaInfor[idx][RATE]) == true ||
+            isNaN(themaInfor[idx][DIFF]) == true ||
+            themaInfor[idx][RATE] < minRate ||
             themaInfor[idx][RATE] > maxRate ||
             themaInfor[idx][COUNT] < minCount ||
             themaInfor[idx][COUNT] > maxCount ||
