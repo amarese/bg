@@ -318,8 +318,7 @@ function funcEval() {
     satisfiedEntries = []
 
     for (let idx = 0; idx < themaInfor.length; idx++) {
-        if ( // isNaN(themaInfor[idx][RATE]) == true ||
-            // isNaN(themaInfor[idx][DIFF]) == true ||
+        if (
             themaInfor[idx][RATE] < minRate ||
             themaInfor[idx][RATE] > maxRate ||
             themaInfor[idx][COUNT] < minCount ||
@@ -328,6 +327,16 @@ function funcEval() {
             themaInfor[idx][DIFF] > maxDiff
         ) {
             continue
+        }
+        if (minRate != 0 || maxRate != 10) {
+            if (isNaN(themaInfor[idx][RATE]) == true) {
+                continue
+            }
+        }
+        if (minDiff != 0 || maxDiff != 10) {
+            if (isNaN(themaInfor[idx][DIFF]) == true) {
+                continue
+            }
         }
         if (queryLoc[themaInfor[idx][LOCATION]] != true) {
             continue
