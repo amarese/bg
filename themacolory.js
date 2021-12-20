@@ -11,11 +11,13 @@ function sortTuple(a, b) {
     for (let idx = 0; idx < sortPriority.length; idx++) {
         let first = a[sortPriority[idx]]
         let second = b[sortPriority[idx]]
-        if (isNaN(first) == true) {
-            first = 0
-        }
-        if (isNaN(second) == true) {
-            second = 0
+        if (sortPriority[idx] >= 3) {
+            if (isNaN(first) == true) {
+                first = 0
+            }
+            if (isNaN(second) == true) {
+                second = 0
+            }
         }
         if (first > second) {
             return sortPriDesc[idx] == true ? -1 : 1
@@ -316,8 +318,8 @@ function funcEval() {
     satisfiedEntries = []
 
     for (let idx = 0; idx < themaInfor.length; idx++) {
-        if (isNaN(themaInfor[idx][RATE]) == true ||
-            isNaN(themaInfor[idx][DIFF]) == true ||
+        if ( // isNaN(themaInfor[idx][RATE]) == true ||
+            // isNaN(themaInfor[idx][DIFF]) == true ||
             themaInfor[idx][RATE] < minRate ||
             themaInfor[idx][RATE] > maxRate ||
             themaInfor[idx][COUNT] < minCount ||
