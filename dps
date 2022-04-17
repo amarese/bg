@@ -1,0 +1,6 @@
+document.getElementsByClassName('form-control')[1].value='01020698564';
+document.getElementsByName('shop_form[f20220203e2dca73e394a6]')[0].checked=true;
+document.getElementsByName('agree_cancel')[0].checked=true;
+document.getElementById('paymentAllCheck').checked=true;
+document.getElementsByClassName('_agree')[0].checked=true;
+document.getElementsByClassName('btn_start_payment')[0].click();
