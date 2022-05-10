@@ -14,11 +14,11 @@ from selenium.webdriver.common.alert import Alert
 #import chromedriver_autoinstaller
 import telegram
 import sys
-#import chromedriver_autoinstaller
-#path = chromedriver_autoinstaller.install(cwd=True)
+import chromedriver_autoinstaller
+path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 
-debugMode = True
+debugMode = False
 cities = ['수서','동탄','평택지제','천안아산','오송','대전','김천','동대구','서대구','신경주','울산(통도사)','부산','익산','정읍','광주송정','나주','목포']
 weekdayArr = ['월','화','수','목','금','토','일']
 browser = None
@@ -61,21 +61,21 @@ while True:
                 targetDate = askstring('날짜','예약할 날짜를 입력하세요. (2022-05-07)')
                 if targetDate == None:
                     sys.exit()
-                if len(phoneNumber)!=10:
+                if len(targetDate)!=10:
                     continue
-                if phoneNumber[0:4].isdecimal == False:
+                if targetDate[0:4].isdecimal == False:
                     continue
-                if int(phoneNumber[0:4]) < 2022:
+                if int(targetDate[0:4]) < 2022:
                     continue
-                if phoneNumber[4]!='-' or phoneNumber[7] != '-':
+                if targetDate[4]!='-' or targetDate[7] != '-':
                     continue
-                if phoneNumber[5:7].isdecimal() == False:
+                if targetDate[5:7].isdecimal() == False:
                     continue
-                if int(phoneNumber[5:7])>12 or int(phoneNumber[5:7]) < 1:
+                if int(targetDate[5:7])>12 or int(targetDate[5:7]) < 1:
                     continue
-                if phoneNumber[8:].isdecimal() == False:
+                if targetDate[8:].isdecimal() == False:
                     continue
-                if int(phoneNumber[8:])>31 or int(phoneNumber[8:]) < 1:
+                if int(targetDate[8:])>31 or int(targetDate[8:]) < 1:
                     continue
                 break
         if searchTime == None:
@@ -85,13 +85,14 @@ while True:
                     sys.exit()
                 if searchTime > 24 or searchTime <0:
                     continue
+                break
         if srcLoc == None:
             while True:
                 srcLoc= askstring('출발지','출발 장소를 입력하세요.')
                 if srcLoc == None:
                     sys.exit()
                 if srcLoc not in cities:
-                    continue;
+                    continue
                 break
         if descLoc == None:
             while True:
@@ -99,9 +100,9 @@ while True:
                 if descLoc == None:
                     sys.exit()
                 if descLoc not in cities:
-                    continue;
+                    continue
                 if srcLoc == descLoc :
-                    continue;
+                    continue
                 break    
 
     
@@ -114,7 +115,7 @@ while True:
     #chromeOptions.add_argument("headless")
     if browser == None:
         chromeOptions = webdriver.ChromeOptions()
-        browser = webdriver.Chrome(#executable_path=path,
+        browser = webdriver.Chrome(executable_path=path,
                                         options=chromeOptions)
         wait = WebDriverWait(browser, 10)
     
@@ -155,8 +156,8 @@ while True:
         dropdown = browser.find_element(By.ID, "dptDt")
         dropdown.find_element(By.XPATH, dateXpath).click()
         
-        if debugCount == 3:
-            searchTime = 13
+        # if debugCount == 3:
+        #     searchTime = 13
         
         cmd = "document.getElementById('dptTm').children[0].value='"+str(searchTime)+"0000'"
         if searchTime < 10:
