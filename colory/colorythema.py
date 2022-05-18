@@ -31,6 +31,7 @@ commitMsg = datetime.datetime.now().date().__str__()
 updatedContents = commitMsg
 locIdx = 0
 
+
 for t in tables:
     rows = t.find_elements(By.CSS_SELECTOR,'tr') 
     print(locations[locIdx].text)
@@ -62,12 +63,13 @@ for t in tables:
         #print(newShopName, themaName, themaScore, themaDifficulty, themaNumOfReviews)
 
 
-g = Github("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")
+g = Github("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")
 repo = g.get_user().get_repo('bg')
 contents = repo.get_contents("colory/curScore.txt")
 
 repo.update_file(contents.path, commitMsg, updatedContents, contents.sha, branch="master")
 
 print("done from", commitMsg)
+input()
 
 

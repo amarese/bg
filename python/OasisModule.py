@@ -20,12 +20,14 @@ def reserveOasis(reserveName : str, reserveTime : int, reservePhone : str, reser
     webDriver = webdriver.Chrome(executable_path=path, options=chromeOptions)
     wait = WebDriverWait(webDriver, 10)
 
+    logStr = ""
+    for i in range(reserveTime):
+        logStr+=' '
+
     while True:
         
         try:
-            logStr = ""
-            for i in range(reserveTime):
-                logStr+=' '
+            
             print(f"{logStr} try with the {reserveTime}-th time")
             webDriver.get('https://oasismuseum.com/ticket?id=1')
             wait.until(EC.visibility_of_element_located((By.CLASS_NAME, 'form-control')))
@@ -64,16 +66,19 @@ def reserveOasis(reserveName : str, reserveTime : int, reservePhone : str, reser
     wait.until(EC.visibility_of_element_located((By.CLASS_NAME,'col-8')))
     confirmNum = webDriver.find_elements(By.CLASS_NAME,'col-8')[10].text
 
-    with open('page_'+reserveName+'_'+reservePhone+'-'+ reserveDate+'.txt', 'a+', -1, 'utf-8') as f:
-        f.write(webDriver.page_source)
+    print(f"{logStr} success with the {reserveTime}-th time")
 
-    sleep(reserveTime*30)
-    gc = gspread.service_account(filename="./python/key.json")
+    with open('page_'+reserveName+'_'+reservePhone+'-'+ reserveDate+'.txt', 'a+', -1, 'utf-8') as f:
+        f.write(f'{reserveDate}\ttimeTable[reserveTime]\treserveName\treservePhone\tconfirmNum\n'+webDriver.page_source)
+        
+    sleep(reserveTime*5)
+
+    gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
     sh = gc.open("비트포비아양도").worksheet("오아시스_자동")
     rowIdx = 1
     while len(sh.get('A'+str(rowIdx))) != 0:
         rowIdx += 1
-
+    rowIdx = rowIdx + 10*(reserveTime-2)
     sh.update('A'+str(rowIdx),reserveDate)
     sh.update('B'+str(rowIdx),timeTable[reserveTime])
     sh.update('C'+str(rowIdx),reserveName)
@@ -81,6 +86,6 @@ def reserveOasis(reserveName : str, reserveTime : int, reservePhone : str, reser
     sh.update('E'+str(rowIdx),confirmNum)
     
         
-    print("done")
+    print(f"{logStr} done from the {reserveTime}-th time")
 
 #reserveOasis('최성호',1,'010-5123-3215','2022-05-17')
