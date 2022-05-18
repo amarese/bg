@@ -46,10 +46,11 @@ function loadFromFile() {
     let contPerLocation
     let contPerShop
     let contPerThema
+    let lines
 
 
     let rawFile = new XMLHttpRequest();
-    rawFile.open("GET", "Colory Room Escape.html", false);
+    rawFile.open("GET", "./colory/curScore.txt", false);
     rawFile.setRequestHeader('Content-Type', 'text/html;charset=utf-8')
     rawFile.onreadystatechange = function() {
         if (rawFile.readyState === 4) {
@@ -60,48 +61,46 @@ function loadFromFile() {
     }
     rawFile.send(null);
 
-    contPerLocation = allText.split('<h5 class="select-area">')
-    for (let idx = 1; idx < contPerLocation.length; idx++) {
-        let locName = contPerLocation[idx].substr(0, contPerLocation[idx].indexOf('</h5>'))
-        vecLocName.push(locName)
-            // showString(locName)
-        contPerShop = contPerLocation[idx].split('class="info-1">')
+    lines = allText.split(/[\n\r]/)
 
+    document.getElementById('date').innerHTML = 'data for ' + lines[0]
 
-        for (let idx2 = 2; idx2 < contPerShop.length; idx2++) {
-            let shopName = contPerShop[idx2].substr(0, contPerShop[idx2].indexOf('</td>'))
-                // showString(shopName)
-            contPerThema = contPerShop[idx2].split('</tr>')
-                //showString('themas')
-            for (let idx3 = 0; idx3 < contPerThema.length - 1; idx3++) {
-                //showString(contPerThema[idx3])
-                let titleStart = contPerThema[idx3].indexOf('info-2')
-                let title = contPerThema[idx3].substr(titleStart + 8, contPerThema[idx3].indexOf('</td>', titleStart) - titleStart - 8)
-                let rateStart = contPerThema[idx3].indexOf('info-3')
-                let rateStart2 = contPerThema[idx3].indexOf('>', rateStart)
-                let rate = contPerThema[idx3].substr(rateStart2 + 1, contPerThema[idx3].indexOf('</td>', rateStart) - rateStart2 - 1)
-                let diffStart = contPerThema[idx3].indexOf('info-4')
-                let diff = contPerThema[idx3].substr(diffStart + 8, contPerThema[idx3].indexOf('</td>', diffStart) - diffStart - 8)
-                let countStart = contPerThema[idx3].indexOf('info-5')
-                let count = contPerThema[idx3].substr(countStart + 8, contPerThema[idx3].indexOf('</td>', countStart) - countStart - 8)
-                    // showString(title)
-                    // showString(rate)
-                    // showString(diff)
-                    // showString(count)
-                let tuple = []
-                tuple[LOCATION] = locName
-                tuple[SHOP] = shopName
-                tuple[TITLE] = title
-                tuple[RATE] = Number(rate)
-                tuple[DIFF] = Number(diff)
+    let locName = null
+    for (let idx = 1; idx < lines.length; idx++) {
+        if (lines[idx].length == 0) {
+            continue
+        }
 
-                tuple[COUNT] = Number(count)
-                themaInfor.push(tuple)
+        if (lines[idx].substr(0, 2) == 'L:') {
+            locName = lines[idx].substr(2)
+            vecLocName.push(locName)
+            continue
+        }
+        let perShop = lines[idx].split('|')
+        let shopName = perShop[0]
+        let idx2 = 1
+        while (true) {
+            let title = perShop[idx2++]
+            let rate = perShop[idx2++]
+            let diff = perShop[idx2++]
+            let count = perShop[idx2++]
 
+            let tuple = []
+            tuple[LOCATION] = locName
+            tuple[SHOP] = shopName
+            tuple[TITLE] = title
+            tuple[RATE] = Number(rate)
+            tuple[DIFF] = Number(diff)
+
+            tuple[COUNT] = Number(count)
+            themaInfor.push(tuple)
+            if (idx2 >= perShop.length) {
+                break
             }
-
         }
     }
+
+
 }
 
 loadFromFile()
@@ -245,7 +244,7 @@ function funcSetSortPri(idx) {
         sortPriority[0] = idx
         sortPriDesc[0] = true
     }
-    console.log("clicked")
+    //console.log("clicked")
     funcDrawResult()
 }
 
@@ -309,7 +308,7 @@ function funcEval() {
     let minCount = Number(document.getElementById('spanCountMin').innerHTML)
     let maxCount = Number(document.getElementById('spanCountMax').innerHTML)
 
-    console.log(maxRate, minRate, maxCount, minCount, maxDiff, minDiff)
+    //console.log(maxRate, minRate, maxCount, minCount, maxDiff, minDiff)
     if (maxRate < minRate || maxCount < minCount || maxDiff < minDiff) {
         alert("입력을 확인해주세요!")
         return
