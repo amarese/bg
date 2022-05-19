@@ -14,8 +14,8 @@ from selenium.webdriver.common.alert import Alert
 #import chromedriver_autoinstaller
 import telegram
 import sys
-import chromedriver_autoinstaller
-path = chromedriver_autoinstaller.install(cwd=True)
+#import chromedriver_autoinstaller
+#path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 
 debugMode = True
@@ -32,8 +32,8 @@ while True:
         password = ""
         srcLoc = '동탄'
         descLoc = '대전'
-        targetDate = '2022-05-21'
-        searchTime = 13
+        targetDate = '2022-05-19'
+        searchTime = 20
     else:
         phoneNumber = None
         while True:
@@ -115,7 +115,7 @@ while True:
     #chromeOptions.add_argument("headless")
     if browser == None:
         chromeOptions = webdriver.ChromeOptions()
-        browser = webdriver.Chrome(executable_path=path,
+        browser = webdriver.Chrome( #executable_path=path,
                                         options=chromeOptions)
         wait = WebDriverWait(browser, 10)
     
@@ -159,9 +159,9 @@ while True:
         # if debugCount == 3:
         #     searchTime = 13
         
-        cmd = "document.getElementById('dptTm').children[0].value='"+str(searchTime)+"0000'"
+        cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='"+str(searchTime)+"0000'"
         if searchTime < 10:
-            cmd = "document.getElementById('dptTm').children[0].value='0"+str(searchTime)+"0000'"
+            cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='0"+str(searchTime)+"0000'"
         browser.execute_script(cmd)
         
         browser.find_element(By.CSS_SELECTOR, ".btn_large").click()
