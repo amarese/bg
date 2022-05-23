@@ -1,0 +1,38 @@
+.bgdiv {
+    background-repeat: no-repeat;
+    background-size: 100%;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background-image: black;
+}
+
+body {
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.btnTrans {
+    border: 1px dotted red;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background-color: black;
+    text-align-last: center;
+    position: absolute;
+    font-family: 'Sriracha', cursive;
+    color: white;
+}
+
+.sltTrans {
+    border: 1px dotted red;
+    border: 0px;
+    margin: 0px;
+    padding: 0px;
+    background-color: transparent;
+    position: absolute;
+    text-align-last: center;
+    -webkit-appearance: none;
+    font-family: 'Sriracha', cursive;
+}
