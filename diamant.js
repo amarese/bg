@@ -1,3 +1,5 @@
+
+
 class MathModBase {
     random() {}
     pow(d, e) {
@@ -84,6 +86,7 @@ var MMath = new MathModBase()
         return t
     })
 }(this, [], MMath, 256, 6, 52, "object" == typeof module && module, "function" == typeof define && define, "random");
+
 
 MMath.seedrandom();
 
@@ -189,7 +192,28 @@ function diamantDrawTiles() {
 
 }
 
-var cards = new Array(1, 2, 3, 4, 5, 5, 7, 7, 9, 11, 11, 13, 14, 15, 17, "dmg1", "dmg1", "dmg1", "dmg2", "dmg2", "dmg2", "dmg3", "dmg3", "dmg3", "dmg4", "dmg4", "dmg4", "dmg5", "dmg5", "dmg5", "treasure", "treasure", "treasure", "treasure", "treasure")
+
+
+
+const cards = new Array(1, 2, 3, 4, 5, 5, 7, 7, 9, 11, 11, 13, 14, 15, 17, "dmg1", "dmg1", "dmg1", "dmg2", "dmg2", "dmg2", "dmg3", "dmg3", "dmg3", "dmg4", "dmg4", "dmg4", "dmg5", "dmg5", "dmg5", "treasure", "treasure", "treasure", "treasure", "treasure")
+
+let order = []
+
+let orderIdx = 0
+function shuffleOrder(){
+    orderIdx = 0
+    for (let idx = 0; idx < cards.length; idx++) {
+        order[idx]=cards.length-idx-1
+    }
+    for (let idx = 0; idx < 1000000; idx++) {
+        let idx1 = MMath.getRandom(0,cards.length-1)        
+        let idx2 = MMath.getRandom(0,cards.length-1)        
+        let temp = order[idx1]
+        order[idx1]=order[idx2]
+        order[idx2]=temp
+    }
+}
+
 
 for (let idx = 0; idx < cards.length; idx++) {
     var btnTemp = appendElement("button", "idTemp" + idx, "empty", 0, 0, 0.005, 0.005, 0.01)
@@ -224,6 +248,7 @@ for (let idx = 1; idx < 6; idx++) {
 }
 
 var roundReady = false
+shuffleOrder()
 
 function funcDrawCard() {
     if (roundReady == false) {
@@ -236,9 +261,9 @@ function funcDrawCard() {
     }
     console.log("draw cards")
     var btn = document.getElementById("btnDrawCards")
-    var rndNumber = MMath.getRandom(0, 34)
+    var rndNumber = order[orderIdx++]
     while (usingCards[rndNumber] == false) {
-        var rndNumber = MMath.getRandom(0, 34)
+        rndNumber = order[orderIdx++]
     }
     console.log(rndNumber)
     btn.style.backgroundImage = "url('img/diamant/" + cards[rndNumber] + ".png')"
@@ -249,7 +274,7 @@ function funcDrawCard() {
             if (thisDmg[dmgIdx] == 2) {
                 btn.innerHTML = "X"
                 permuDmg[dmgIdx]++
-                    var btnPerDmg = document.getElementById("btnPerDmg" + dmgPermuCount)
+                var btnPerDmg = document.getElementById("btnPerDmg" + dmgPermuCount)
                 btnPerDmg.style.backgroundImage = "url('img/diamant/" + cards[rndNumber] + ".png')"
                 btnPerDmg.style.backgroundSize = btnPerDmg.style.width + " " + btnPerDmg.style.height
                 btnPerDmg.innerHTML = "X"
@@ -325,6 +350,8 @@ function funcCave(round) {
     }
 
     usingCards[30 + round - 1] = true
+
+    shuffleOrder()
 
     for (let idx = 0; idx < 30; idx++) {
         usingCards[idx] = true
