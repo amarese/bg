@@ -4,7 +4,7 @@
     border: 0px;
     margin: 0px;
     padding: 0px;
-    background-image: url('img/bg2.jpg');
+    background-image: url('img/bg4.jpg');
 }
 
 body {
@@ -22,6 +22,7 @@ body {
     text-align-last: center;
     position: absolute;
     font-family: 'Sriracha', cursive;
+    border-radius: 15%;
 }
 
 .sltTrans {

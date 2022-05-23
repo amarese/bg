@@ -215,8 +215,10 @@ function funcInsertElement(_id, _type, _class, leftTopX, leftTopY, rightBottomX,
 
     mainDiv.appendChild(newElement)
 
-    newElement.onclick = function(){
-        console.log(newElement.id)
+    if (newElement.onclick == null) {
+        newElement.onclick = function () {
+            console.log(newElement.id)
+        }
     }
 
     funcRelocateElement(_id)

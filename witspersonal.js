@@ -25,10 +25,12 @@ function funcDrawWi(){
         "inputSol", "input", "btnTrans",
         0,0.1,1,1
     )
-    inputSol.onclick = function(){
-        inputSol.value =""
+    inputSol.style.fontSize = Number(inputSol.style.fontSize.replace('px',''))/1.5 + "px"
+    console.log(inputSol.style.fontSize)
+    inputSol.onclick = function() {
+        let ans = prompt("정답입력")
+        inputSol.value = ans
     }
-    
 }
 
 
