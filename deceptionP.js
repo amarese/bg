@@ -25,6 +25,7 @@ function change(btn,max,which) {
 }
 
 function funcDrawDeception(){
+    funcInsertFullScreenButton(0.475, 0.475, 0.525, 0.525)
     for (let idx = 0; idx < 4; idx++) {
         checkArr[0][idx] = funcInsertElement(
             "checkBtn" + 0+"_"+idx,
