@@ -2,68 +2,121 @@ funcWidthPerHeight(0)
 
 funcUpdatePageSize(true)
 
-let usedClues = []
+function mulberry32(a) {
+    return function() {
+        var t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    }
+}
+
+
+let cluesArr = []
 for (let idx = 0; idx < 201; idx++) {
-    usedClues[idx]=false
+    cluesArr[idx] = (idx + 1)
 }
 
-let usedMeans = []
+let meansArr = []
 for (let idx = 0; idx < 90; idx++) {
-    usedMeans[idx]=false
+    meansArr[idx] = (idx + 1)
 }
 
-let checkArr = [[],[]]
+let seedNumber = 1008
+seedNumber = prompt("방번호 입력")
+let numOfPlayers = seedNumber % 100
+if (!(numOfPlayers >= 4 && numOfPlayers <= 12)) {
+    numOfPlayers = 8
+}
+MMath.seedrandom(seedNumber)
 
-function change(btn,max,which) {
-    let min = 1
-    let val = Math.floor(Math.random() * (max - min + 1)) + min; //최댓값도 포함, 최솟값도 포함
-    while (usedClues[val] == true) {
-        val = Math.floor(Math.random() * (max - min + 1)) + min; //최댓값도 포함, 최솟값도 포함
+funcSortArr(cluesArr)
+funcSortArr(meansArr)
+
+checkArr = [
+    [],
+    []
+]
+
+function funcBorder(idx1, idx2) {
+    if (checkArr[idx1][idx2].style.border == "0px" || checkArr[idx1][idx2].style.border == "") {
+        checkArr[idx1][idx2].style.border = "10px red dotted"
+    } else {
+        checkArr[idx1][idx2].style.border = "0px"
+
+    }
+    for (let idx = 0; idx < 4; idx++) {
+        if (idx == idx2) {
+            continue
+        }
+        checkArr[idx1][idx].style.border = "0px"
     }
 
-    btn.style.backgroundImage = "url('img/deception/"+which+" ("+val+").png')"
+}
+let btnChangeP = []
+
+function funcChangePlayer(curPlayer) {
+    for (let idx = 0; idx < numOfPlayers; idx++) {
+        btnChangeP[idx].style.color = "black"
+    }
+    btnChangeP[curPlayer].style.color = "red"
+    for (let idx = 0; idx < 4; idx++) {
+        let clueNumber = cluesArr[4 * curPlayer + idx]
+        checkArr[0][idx].style.backgroundImage = "url('img/deception/clues" + " (" + clueNumber + ").png')"
+        checkArr[0][idx].style.border = "0px"
+            //checkArr[0][idx].innerHTML = clueNumber
+            //checkArr[0][idx].style.fontSize = "20px"
+
+        let meanNumber = meansArr[4 * curPlayer + idx]
+        checkArr[1][idx].style.backgroundImage = "url('img/deception/means" + " (" + meanNumber + ").png')"
+        checkArr[1][idx].style.border = "0px"
+            //checkArr[1][idx].innerHTML = meanNumber
+            //checkArr[1][idx].style.fontSize = "20px"
+    }
+
 }
 
-function funcDrawDeception(){
-    funcInsertFullScreenButton(0.475, 0.475, 0.525, 0.525)
+function funcDrawDeception() {
+    funcInsertFullScreenButton(0.01, 0.01, 0.09, 0.10)
+
+    for (let idx = 0; idx < numOfPlayers; idx++) {
+        btnChangeP[idx] = funcInsertElement("changePlayerBtn_" + idx, "button", "btnTrans",
+            0.01, 0.1 + idx / numOfPlayers * 0.9,
+            0.09, 0.1 + (1 + idx) / numOfPlayers * 0.9
+        )
+        btnChangeP[idx].onclick = function() { funcChangePlayer(idx) }
+        btnChangeP[idx].innerHTML = (idx + 1)
+    }
+
     for (let idx = 0; idx < 4; idx++) {
         checkArr[0][idx] = funcInsertElement(
-            "checkBtn" + 0+"_"+idx,
+            "checkBtn" + 0 + "_" + idx,
             "button",
             "btnTrans",
-            0.01+idx*1/4,
-            0.05,
-            0.01+idx*1/4 + 0.235,
-            0.45
+            0.1 + idx * 0.225,
+            0.00,
+            0.1 + idx * 0.225 + 0.22,
+            0.50
         )
-        checkArr[0][idx].onclick = function(){
-            let res = confirm("바꾸겠습니까?")
-            if (res!=true){
-                return
-            }
-            change(checkArr[0][idx],90,"means")
+        checkArr[0][idx].onclick = function() {
+            funcBorder(0, idx)
         }
-        change(checkArr[0][idx],90,"means")
+
 
         checkArr[1][idx] = funcInsertElement(
-            "checkBtn" + 1+"_"+idx,
+            "checkBtn" + 1 + "_" + idx,
             "button",
             "btnTrans",
-            0.01+idx*1/4,
-            0.55,
-            0.01+idx*1/4 + 0.235,
-            0.95
+            0.1 + idx * 0.225,
+            0.50,
+            0.1 + idx * 0.225 + 0.22,
+            1.0
         )
-        checkArr[1][idx].onclick = function(){
-            let res = confirm("바꾸겠습니까?")
-            if (res!=true){
-                return
-            }
-            change(checkArr[1][idx],201,"clues")
+        checkArr[1][idx].onclick = function() {
+            funcBorder(1, idx)
         }
-        change(checkArr[1][idx],201,"clues")
-        
     }
+    funcChangePlayer(0)
 }
 
 
