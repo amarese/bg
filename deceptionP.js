@@ -47,9 +47,19 @@ function funcBorder(idx1, idx2) {
 let btnChangeP = []
 
 function funcChangePlayer(curPlayer) {
+    let curFontSize
     for (let idx = 0; idx < numOfPlayers; idx++) {
+        if (idx != curPlayer) {
+            curFontSize = Number(btnChangeP[idx].style.fontSize.replace("px", ""))
+        }
         btnChangeP[idx].style.color = "black"
         btnChangeP[idx].innerHTML = idx + 1
+    }
+    for (let idx = 0; idx < numOfPlayers; idx++) {
+        btnChangeP[idx].style.fontSize = curFontSize + "px"
+        if (idx == curPlayer) {
+            btnChangeP[idx].style.fontSize = curFontSize / 2 + "px"
+        }
     }
     btnChangeP[curPlayer].style.color = "red"
     btnChangeP[curPlayer].innerHTML = seedNumber
