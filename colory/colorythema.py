@@ -63,7 +63,7 @@ for t in tables:
         #print(newShopName, themaName, themaScore, themaDifficulty, themaNumOfReviews)
 
 
-g = Github("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")
+g = Github("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")
 repo = g.get_user().get_repo('bg')
 contents = repo.get_contents("colory/curScore.txt")
 

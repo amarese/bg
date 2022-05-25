@@ -37,7 +37,7 @@ frequentyNames = ["가윤","강민","규리","규민","나윤","나은","다온"
 tryNumber = 4
 newNumber = []
 if __name__ == "__main__":
-    #newNumber = sknumber.run(tryNumber)
+    newNumber = sknumber.run(tryNumber)
     newNames = []
     while True:
         try:
