@@ -2,15 +2,6 @@ funcWidthPerHeight(0)
 
 funcUpdatePageSize(true)
 
-function mulberry32(a) {
-    return function() {
-        var t = a += 0x6D2B79F5;
-        t = Math.imul(t ^ t >>> 15, t | 1);
-        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
-        return ((t ^ t >>> 14) >>> 0) / 4294967296;
-    }
-}
-
 
 let cluesArr = []
 for (let idx = 0; idx < 201; idx++) {
@@ -58,8 +49,10 @@ let btnChangeP = []
 function funcChangePlayer(curPlayer) {
     for (let idx = 0; idx < numOfPlayers; idx++) {
         btnChangeP[idx].style.color = "black"
+        btnChangeP[idx].innerHTML = idx + 1
     }
     btnChangeP[curPlayer].style.color = "red"
+    btnChangeP[curPlayer].innerHTML = seedNumber
     for (let idx = 0; idx < 4; idx++) {
         let clueNumber = cluesArr[4 * curPlayer + idx]
         checkArr[0][idx].style.backgroundImage = "url('img/deception/clues" + " (" + clueNumber + ").png')"
