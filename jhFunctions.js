@@ -209,7 +209,7 @@ function funcInsertElement(_id, _type, _class, leftTopX, leftTopY, rightBottomX,
         newObject.fixedRatio = _fixedRatio
         newObject.size[0][1] = newObject.size[0][0] * pageWidth / pageHeight
         newObject.size[1][1] = newObject.size[1][0] * pageWidth / pageHeight
-    }
+    } 
 
     mapLocationInfor[_id] = newObject;
 

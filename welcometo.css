@@ -4,7 +4,7 @@
     border: 0px;
     margin: 0px;
     padding: 0px;
-    background-image: url('img/bg.jpg');
+    background-image: url('img/bg2.jpg');
 }
 
 body {
@@ -14,14 +14,15 @@ body {
 }
 
 .btnTrans {
-    border: 1px dotted red;
-    /* border: 0px; */
+    border: 10px dotted red;
+    border: 0px; 
     margin: 0px;
     padding: 0px;
     background-color: transparent;
     text-align-last: center;
     position: absolute;
-    font-family: 'Sriracha', cursive;
+    font-family: 'Nanum Pen Script', cursive;
+    border-radius: 5%;
 }
 
 .sltTrans {

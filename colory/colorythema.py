@@ -70,6 +70,7 @@ contents = repo.get_contents("colory/curScore.txt")
 repo.update_file(contents.path, commitMsg, updatedContents, contents.sha, branch="master")
 
 print("done from", commitMsg)
+
 input()
 
 

@@ -403,6 +403,40 @@
 
     {
         var btn = document.createElement("button")
+        btn.style.backgroundImage = "url('https://www.ultraboardgames.com/img/slideshow/welcome-to.jpg')"
+        btn.style.opacity = "0.5"
+        btn.style.backgroundSize = "120%"
+        btn.style.backgroundPositionY = "8%"
+        btn.style.backgroundPositionX = "80%"
+        btn.style.width = pageWidth + "px"
+        btn.style.height = btnHeight * pageHeight + "px"
+        btn.style.fontSize = 0.03 * pageHeight + "px"
+        btn.style.top = topLoc * pageHeight + "px"
+        btn.style.backgroundColor = "gray"
+        btn.className = "imgBtn"
+        mainDiv.appendChild(btn)
+
+        var pText = document.createElement("a")
+        pText.className = "pText"
+        pText.href = "welcometo.html"
+        pText.style.textDecoration = "none"
+        pText.style.width = pageWidth + "px"
+        pText.style.height = btnHeight * pageHeight + "px"
+        pText.style.fontSize = 0.04 * pageHeight + "px"
+        pText.style.lineHeight = 0.2 * btnHeight * pageHeight + "px"
+        pText.style.top = topLoc * pageHeight + "px"
+        pText.style.padding = 0.02 * pageHeight + "px"
+        pText.style.boxSizing = "border-box"
+        pText.innerHTML = "웰컴투 카드 뽑기"
+        pText.style.color = "white"
+        pText.style.textShadow = "3px 3px 1px black"
+        mainDiv.appendChild(pText)
+        topLoc += btnHeight
+        topLoc -= 1 / pageHeight
+    }
+
+    {
+        var btn = document.createElement("button")
         btn.style.backgroundImage = "url('https://cf.geekdo-images.com/opengraph/img/tPqRZXtkbouqL6hWNzBPWU-G_Fc=/fit-in/1200x630/pic3581963.jpg')"
         btn.style.opacity = "0.5"
         btn.style.backgroundSize = "120%"

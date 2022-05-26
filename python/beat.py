@@ -1,5 +1,6 @@
 import datetime
 from time import sleep
+from tkinter.messagebox import askquestion
 from pytest import ExitCode
 from selenium import webdriver
 #from webdriver_manager.chrome import ChromeDriverManager
@@ -50,7 +51,7 @@ frequentyNames = ["가윤", "강민", "규리", "규민", "나윤", "나은", "�
 "지은", "지한", "지현", "지환", "지후", "지훈", "진우", "채린", "채원", "채은", "태민",
 "태현", "하연", "하율", "현서", "현우", "혜원"]
 
-DEBUG = False
+DEBUG = True
 tryNumber = 1
 newNumber = []
 if __name__ == "__main__":
@@ -70,6 +71,7 @@ if __name__ == "__main__":
         except:
             print('again')
 
+    bathroom = askquestion("강남목욕탕인가요? (yes:강목, no:화생설화)")
 
     targetDate = '20220604'
     while DEBUG==False and True:
@@ -124,15 +126,24 @@ if __name__ == "__main__":
 
     browser.get("https://www.xphobia.net/reservation/reservation_check.php")
     
+    shopCSS = "#\\AC15\\B0A8\\ \\B358\\C804 > p"
+    themaCSS = "#\AC15\B0A8\BAA9\C695\D0D5 > p"
+    if bathroom != True:
+        shopCSS = "#\B358\C804 101 > p"
+        themaCSS = "#\D654\C0DD\C124\D654\ \3A\ Blooming > p"
+
     wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#cate_3 > p")))
     browser.find_element(By.CSS_SELECTOR, "#cate_3 > p").click()
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#\\AC15\\B0A8\\ \\B358\\C804 > p")))
-    browser.find_element(By.CSS_SELECTOR, "#\\AC15\\B0A8\\ \\B358\\C804 > p").click()
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, shopCSS))) #  강남던전
+    browser.find_element(By.CSS_SELECTOR, shopCSS).click()
+
+    # css=#\B358\C804 101 > p // 던젼101
     
     jsCommand = "document.getElementsByClassName('input_date')[0].value='"+targetDate+"'"
     browser.execute_script(jsCommand)
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#\AC15\B0A8\BAA9\C695\D0D5 > p")))
-    browser.find_element(By.CSS_SELECTOR, "#\AC15\B0A8\BAA9\C695\D0D5 > p").click()
+    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, themaCSS)))
+    browser.find_element(By.CSS_SELECTOR, themaCSS).click()
+    # css=#\D654\C0DD\C124\D654\ \3A\ Blooming > p // 화생설화
 
     targetTime = 4
     newTime = None
@@ -182,14 +193,15 @@ if __name__ == "__main__":
     chat_id = 763073279
     chat.sendMessage(chat_id = chat_id, text=f"{targetDate}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{newPassword}\t{ppoid}")
 
-    with open('page_'+f"{targetDate}_{newNames[0]}"+'.txt', 'a+', -1, 'utf-8') as f:
+    fileTime = targetTime.replace(":","")
+    with open('page_'+f"{targetDate}_{fileTime}_{newNames[0]}"+'.txt', 'a+', -1, 'utf-8') as f:
         f.write(f"{targetDate}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{newPassword}\t{ppoid}")
         
     
     gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
     sh = gc.open("비트포비아양도").worksheet("비트")
     rowIdx = 1
-    while len(sh.get('A'+str(rowIdx))) != 0:
+    while len(sh.get('F'+str(rowIdx))) != 0:
         rowIdx += 1
     sh.update('F'+str(rowIdx),targetDate)
     sh.update('G'+str(rowIdx),newTime)

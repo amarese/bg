@@ -1,5 +1,6 @@
 funcWidthPerHeight(0)
 
+MMath.seedrandom(0)
 
 var cardSetNumbers = []
 cardSetNumbers[0] = [1,2,4,5,5,6,7,7,8,8,9,9,10,11,11,12,14,15]
@@ -11,69 +12,160 @@ cardTypes[1] = ['F']
 cardTypes[2] = ['P','B','A']
 var cardArr = new Array()
 
+let remainingCards={} // 남아있는 카드 표시
+
 for (let idx = 0; idx < 3; idx++) {
     for (let idx2 = 0; idx2 < cardTypes[idx].length; idx2++) {
         for (let idx3 = 0; idx3 < cardSetNumbers[idx].length; idx3++) {
             cardArr.push(cardTypes[idx][idx2]+cardSetNumbers[idx][idx3])            
+            if (remainingCards[cardTypes[idx][idx2]]==null){
+                remainingCards[cardTypes[idx][idx2]]=0
+            }
+            if (remainingCards[cardSetNumbers[idx][idx3]]==null){
+                remainingCards[cardSetNumbers[idx][idx3]]=0
+            }
+            
+            remainingCards[cardTypes[idx][idx2]]++
+            remainingCards[cardSetNumbers[idx][idx3]]++
         }        
     }
 }
 
 
-remainingCards={} // 남아있는 카드 표시
 
-var curIdx
-
-function funcInitialRemainingCards(){
-    remainingCards['P']=remainingCards['A']=remainingCards['B'] = 9
-    remainingCards['L']=remainingCards['E']=remainingCards['F'] = 18
-    remainingCards[1]=remainingCards[2]=remainingCards[14]=remainingCards[15]=3
-    remainingCards[3]=remainingCards[13]=4
-    remainingCards[4]=remainingCards[12]=5
-    remainingCards[5]=remainingCards[11]=6
-    remainingCards[6]=remainingCards[10]=7
-    remainingCards[7]=remainingCards[9]=8
-    remainingCards[9]=8
-    
-    funcSortArr(cardArr)
-    curIdx = 0
-}
-
-funcInitialRemainingCards()
+let curIdx = 0
+funcSortArr(cardArr)
 
 funcUpdatePageSize(true)
 
+let curCards = []
+let nextCards = []
+
+let goal=[MMath.getRandom(1,11),MMath.getRandom(1,11),MMath.getRandom(1,6)]
+
+let leftMargin = 0.01
+let topMargin = 0.01
+let cardHeight = 0.55
+let cardWidth = 0.20
+let gapVertical = 0.23
+let gapHeight = 0.43
+let modVertical = 0.015
+
+let gleftMargin = 0.84
+let gtopMargin = 0.01
+let gcardHeight = 0.315
+let gcardWidth = 0.15
+let ggapHeight = 0.333
+let goalCards = []
+let accomplish =[false,false,false]
+
+let rleftMargin = 0.70
+let rtopMargin = 0.01
+let rcardHeight = 0.1
+let rcardWidth = 0.13
+let rgapHeight = 1/21*0.98
+let remainBtns = []
+
 function insertElement(){
-    var curCards = []
-    var nextCards = []
+
+    let rollbackBtn = funcInsertElement(
+        "rollback",
+        "button",
+        "btnTrans",
+        rleftMargin,
+        rtopMargin,
+        rleftMargin+rcardWidth,
+        rtopMargin+rcardHeight
+    )
+    rollbackBtn.innerHTML = "취소"
+    rollbackBtn.onclick=function(){
+        let res = confirm("취소하시겠습니까?")
+        if (res==true){
+            if (curIdx>6){
+                curIdx -= 6
+                funcCardDraw()
+            }
+        }
+    }
     for (let idx = 0; idx < 3; idx++) {
-        curCards[idx]=funcInsertElement(
-            "btnCurCards"+idx,
-            "button",
-            "btnTrans",
-            0.1+0.3*idx, 0.20, 0.3+0.3*idx, 0.6, 273 / 416
-        )    
         nextCards[idx]=funcInsertElement(
             "btnNextCards"+idx,
             "button",
             "btnTrans",
-            0.1+0.3*idx, 0.4, 0.3+0.3*idx, 0.5, 273 / 416
+            modVertical+leftMargin + gapVertical*idx,
+            topMargin + gapHeight,
+            modVertical+leftMargin + gapVertical*idx+cardWidth,
+            topMargin+ gapHeight+cardHeight
+        )
+
+        nextCards[idx].onclick = funcCardDraw
+        
+        curCards[idx]=funcInsertElement(
+            "btnCurCards"+idx,
+            "button",
+            "btnTrans",
+            leftMargin + gapVertical*idx,
+            topMargin,
+            leftMargin + gapVertical*idx+cardWidth,
+            topMargin+cardHeight
         )    
+        curCards[idx].onclick = funcCardDraw
+
+        goalCards[idx]=funcInsertElement(
+            "btnGoalCards"+idx,
+            "button",
+            "btnTrans",
+            gleftMargin, 
+            gtopMargin + ggapHeight*idx,
+            gleftMargin+gcardWidth,
+            gtopMargin + ggapHeight*idx+gcardHeight
+        )
+        goalCards[idx].onclick = function(){
+            if (accomplish[idx]==false){
+                accomplish[idx]=true
+                goalCards[idx].style.backgroundImage="url('img/welcometo/goal"+(idx+1)+" ("+goal[idx]+").png')"
+            }
+            else{
+                accomplish[idx]=false
+                goalCards[idx].style.backgroundImage="url('img/welcometo/goal"+(idx+1)+"b ("+goal[idx]+").png')"
+            }
+        }
+        goalCards[idx].click()
     }
-    
-    
+
 }
 
 insertElement()
+curIdx=3
+function funcCardDraw(){
+    if (curIdx+2 >= cardArr.length){
+        let res = confirm("덱을 소진했습니다. (이 행동은 취소할 수 없습니다)")
+        if (res==true){
+            curIdx = 3
+            funcSortArr(cardArr)
+        }else{
+            return
+        }
+    }
+    for (let idx = 0; idx < 3; idx++) {
+        
+        curCards[idx].style.backgroundImage = "url('img/welcometo/"+cardArr[idx+curIdx]+".png')"
+//        curCards[idx].innerHTML = idx+curIdx
+        let bgpath = cardArr[idx+curIdx-3][0]+"B";
+//        nextCards[idx].innerHTML = idx+curIdx-3
+        nextCards[idx].style.backgroundImage = "url('img/welcometo/"+bgpath+".png')"
 
-function funcDraw(){
-    
+        
+//        nextCards[idx].style.backgroundImage = "url('img/welcometo/"+cardArr[idx+curIdx-3]+".png')"
+    }   
+    curIdx+=3
 }
 
+funcCardDraw()
 
 $(window).resize(function() {
     funcUpdatePageSize(true)
-    funcDraw()
+    insertElement()
 });
 
-funcPrepareGetLocation()
+//funcPrepareGetLocation()
