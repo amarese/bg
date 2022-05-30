@@ -19,8 +19,8 @@ import sys
 #path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 from random import randrange
-import sknumber
-import chromedriver_autoinstaller
+#import sknumber
+#import chromedriver_autoinstaller
 from selenium.webdriver.common.action_chains import ActionChains
 import gspread
 
@@ -56,7 +56,8 @@ tryNumber = 1
 newNumber = []
 if __name__ == "__main__":
     if DEBUG != True:
-        newNumber = sknumber.run(tryNumber)
+        #newNumber = sknumber.run(tryNumber)
+        temp = 0
     newNames = []
     while True:
         try:
@@ -71,9 +72,12 @@ if __name__ == "__main__":
         except:
             print('again')
 
-    bathroom = askquestion("강남목욕탕인가요? (yes:강목, no:화생설화)")
+    newNumber[0].replace("-","")
+    bathroom = "no"
+    if DEBUG==False:
+        bathroom = askquestion("강남목욕탕인가요? (yes:강목, no:화생설화)")
 
-    targetDate = '20220604'
+    targetDate = '20220611'
     while DEBUG==False and True:
         targetDate = askstring('날짜', '예약할 날짜를 입력하세요. (20220507)')
         if targetDate == None:
@@ -94,9 +98,9 @@ if __name__ == "__main__":
             continue
         break
 
-    path = chromedriver_autoinstaller.install(cwd=True)
+    #path = chromedriver_autoinstaller.install(cwd=True)
     chromeOptions = webdriver.ChromeOptions()
-    browser = webdriver.Chrome( executable_path=path,
+    browser = webdriver.Chrome( #executable_path=path,
                                     options=chromeOptions)
     wait = WebDriverWait(browser, 10)
 
@@ -126,38 +130,39 @@ if __name__ == "__main__":
 
     browser.get("https://www.xphobia.net/reservation/reservation_check.php")
     
-    shopCSS = "#\\AC15\\B0A8\\ \\B358\\C804 > p"
-    themaCSS = "#\AC15\B0A8\BAA9\C695\D0D5 > p"
-    if bathroom != True:
-        shopCSS = "#\B358\C804 101 > p"
-        themaCSS = "#\D654\C0DD\C124\D654\ \3A\ Blooming > p"
+    shopID = "강남 던전"
+    themaID = "강남목욕탕"
+    if bathroom != 'yes':
+        shopID = "던전101"
+        themaID = "화생설화 : Blooming"
 
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#cate_3 > p")))
-    browser.find_element(By.CSS_SELECTOR, "#cate_3 > p").click()
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, shopCSS))) #  강남던전
-    browser.find_element(By.CSS_SELECTOR, shopCSS).click()
+    wait.until(EC.element_to_be_clickable((By.ID, "cate_3")))
+    browser.find_element(By.ID, "cate_3").click()
+    wait.until(EC.element_to_be_clickable((By.ID, shopID))) #  강남던전
+    browser.find_element(By.ID, shopID).click()
 
     # css=#\B358\C804 101 > p // 던젼101
     
     jsCommand = "document.getElementsByClassName('input_date')[0].value='"+targetDate+"'"
     browser.execute_script(jsCommand)
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, themaCSS)))
-    browser.find_element(By.CSS_SELECTOR, themaCSS).click()
+    wait.until(EC.element_to_be_clickable((By.ID, themaID)))
+    browser.find_element(By.ID, themaID).click()
     # css=#\D654\C0DD\C124\D654\ \3A\ Blooming > p // 화생설화
 
-    targetTime = 4
+    targetTime = 3
     newTime = None
     while True:
-        wait.until(EC.presence_of_element_located((By.XPATH, "//div[5]/div/ul/li["+str(targetTime)+"]")))
-        btnTime = browser.find_element(By.XPATH, "//div[5]/div/ul/li["+str(targetTime)+"]")
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+        timeLists = browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+        btnTime = timeLists[targetTime]
         newTime = btnTime.get_attribute('id')
         if btnTime.get_attribute('class') == "":
             btnTime.click()
             break
         targetTime += 2
-        if targetTime == 10:
-            targetTime = 5
         if targetTime == 9:
+            targetTime = 4
+        if targetTime == 10:
             sys.exit()
     
     jsCommand = "submitNext()"
@@ -165,13 +170,19 @@ if __name__ == "__main__":
 
     newNumber[0] = newNumber[0].replace("-","")
     
-    wait.until(EC.element_to_be_clickable((By.XPATH, "//div/input")))
+    
+    # 2nd page
+    wait.until(EC.element_to_be_clickable((By.ID, "agree")))
     jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
     browser.execute_script(jsCommand)
+    
+    
+    #third page
     newPassword = randrange(1000,100000)
-    ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
+    
     
     wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
+    ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
 
     nameText = browser.find_element(By.ID,"event_disc")
     browser.execute_script("arguments[0].scrollIntoView();", nameText)
@@ -188,14 +199,14 @@ if __name__ == "__main__":
 
     browser.execute_script(jsCommand)
     
+    themaName = themaID.replace(":","")
+    with open('page_'+f"{targetDate}_{themaName}_{targetTime}_{newNames[0]}"+'.txt', 'a+', -1, 'utf-8') as f:
+        f.write(f"{targetDate}\t{themaName}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{ppoid}\t{newPassword}")
+
     chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
     chat = telegram.Bot(token = chat_token)
     chat_id = 763073279
     chat.sendMessage(chat_id = chat_id, text=f"{targetDate}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{newPassword}\t{ppoid}")
-
-    fileTime = targetTime.replace(":","")
-    with open('page_'+f"{targetDate}_{fileTime}_{newNames[0]}"+'.txt', 'a+', -1, 'utf-8') as f:
-        f.write(f"{targetDate}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{newPassword}\t{ppoid}")
         
     
     gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
