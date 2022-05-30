@@ -2,7 +2,7 @@ funcWidthPerHeight(0)
 
 funcUpdatePageSize(true)
 
-let flagFigure = false;
+let flagFigure = true;
 
 if (flagFigure == false) {
     document.getElementsByClassName('bgdiv')[0].style.backgroundImage = "url('')"
