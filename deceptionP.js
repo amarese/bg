@@ -2,7 +2,7 @@ funcWidthPerHeight(0)
 
 funcUpdatePageSize(true)
 
-let flagFigure = true;
+let flagFigure = false;
 
 if (flagFigure == false) {
     document.getElementsByClassName('bgdiv')[0].style.backgroundImage = "url('')"
@@ -58,6 +58,10 @@ function funcBorder(idx1, idx2) {
 let btnChangeP = []
 
 function funcChangePlayer(curPlayer) {
+    let maxBottom = 0
+    let maxRight = 0
+
+
     if (curPlayer == numOfPlayers) {
         for (let idx = 0; idx < 2; idx++) {
             for (let idx2 = 0; idx2 < 4; idx2++) {
@@ -84,6 +88,14 @@ function funcChangePlayer(curPlayer) {
                     allCheckArr[idx][idx2].style.fontSize = "15px"
 
                 }
+
+                if (maxBottom < allCheckArr[idx][idx2].getBoundingClientRect()['bottom']) {
+                    maxBottom = allCheckArr[idx][idx2].getBoundingClientRect()['bottom']
+                }
+                if (maxRight < allCheckArr[idx][idx2].getBoundingClientRect()['right']) {
+                    maxRight = allCheckArr[idx][idx2].getBoundingClientRect()['right']
+                }
+
             }
             allCheckID[idx].style.display = 'inline'
 
@@ -93,6 +105,11 @@ function funcChangePlayer(curPlayer) {
         for (let idx = 0; idx < 2; idx++) {
             for (let idx2 = 0; idx2 < 4; idx2++) {
                 checkArr[idx][idx2].style.display = "inline"
+
+                if (maxRight < checkArr[idx][idx2].getBoundingClientRect()['right']) {
+                    maxRight = checkArr[idx][idx2].getBoundingClientRect()['right']
+                }
+
             }
         }
         for (let idx = 0; idx < numOfPlayers; idx++) {
@@ -114,7 +131,11 @@ function funcChangePlayer(curPlayer) {
         btnChangeP[idx].innerHTML = idx + 1
         if (idx == numOfPlayers) {
             btnChangeP[idx].innerHTML = "A"
+
+            maxBottom = btnChangeP[idx].getBoundingClientRect()['bottom']
         }
+
+
     }
     for (let idx = 0; idx <= numOfPlayers; idx++) {
         btnChangeP[idx].style.fontSize = curFontSize + "px"
@@ -148,6 +169,12 @@ function funcChangePlayer(curPlayer) {
             //checkArr[1][idx].style.fontSize = "20px"
     }
 
+    console.log(maxRight, maxBottom)
+    mainDiv.style.height = maxBottom + "px"
+    mainDiv.style.width = maxRight + "px"
+    mainDiv.style.backgroundSize = maxRight + "px " + maxBottom + "px"
+
+
 }
 
 
@@ -159,15 +186,15 @@ function funcDrawDeception() {
         for (let idx = 0; idx < numOfPlayers; idx++) {
             allCheckArr[idx] = []
             allCheckID[idx] = funcInsertElement(
-                "allCheckIDBtn" + idx,
-                "button",
-                "btnTrans",
-                0.1 + idx * 0.24,
-                0.005,
-                0.1 + idx * 0.24 + 0.22,
-                0.1
-            )
-            allCheckID[idx].style.display = "none"
+                    "allCheckIDBtn" + idx,
+                    "button",
+                    "btnTrans",
+                    0.1 + idx * 0.24,
+                    0.005,
+                    0.1 + idx * 0.24 + 0.22,
+                    0.1
+                )
+                //allCheckID[idx].style.display = "none"
             allCheckID[idx].innerHTML = (idx + 1)
             for (let idx2 = 0; idx2 < 4; idx2++) {
                 allCheckArr[idx][idx2] = funcInsertElement(
@@ -179,16 +206,17 @@ function funcDrawDeception() {
                     0.1 + idx * 0.24 + 0.11 - 0.0025,
                     0.1 + 0.9 * (1 / 4 * (idx2 + 1) - 0.005)
                 )
+
                 allCheckArr[idx][4 + idx2] = funcInsertElement(
-                    "allCheckBtn" + idx + "_" + (4 + idx2),
-                    "button",
-                    "btnTrans",
-                    0.1 + idx * 0.24 + 0.11 + 0.0025,
-                    0.1 + 0.9 * (1 / 4 * idx2 + 0.005),
-                    0.1 + idx * 0.24 + 0.22,
-                    0.1 + 0.9 * (1 / 4 * (idx2 + 1) - 0.005)
-                )
-                allCheckArr[idx][idx2].style.display = "none"
+                        "allCheckBtn" + idx + "_" + (4 + idx2),
+                        "button",
+                        "btnTrans",
+                        0.1 + idx * 0.24 + 0.11 + 0.0025,
+                        0.1 + 0.9 * (1 / 4 * idx2 + 0.005),
+                        0.1 + idx * 0.24 + 0.22,
+                        0.1 + 0.9 * (1 / 4 * (idx2 + 1) - 0.005)
+                    )
+                    //allCheckArr[idx][idx2].style.display = "none"
             }
 
         }
@@ -234,7 +262,6 @@ function funcDrawDeception() {
             funcBorder(1, idx)
         }
     }
-    funcChangePlayer(0)
 }
 
 
