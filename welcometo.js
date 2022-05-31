@@ -1,6 +1,10 @@
 funcWidthPerHeight(0)
 
 MMath.seedrandom(0)
+    let seed = prompt("방번호를 입력하세요.")
+if (seed!=null){
+    MMath.seedrandom(seed)
+}
 
 var cardSetNumbers = []
 cardSetNumbers[0] = [1,2,4,5,5,6,7,7,8,8,9,9,10,11,11,12,14,15]
