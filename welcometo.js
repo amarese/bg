@@ -1,9 +1,9 @@
 funcWidthPerHeight(0)
 
 MMath.seedrandom(0)
-    let seed = prompt("방번호를 입력하세요.")
+let newSeed = prompt("방번호를 입력하세요.")
 if (seed!=null){
-    MMath.seedrandom(seed)
+    MMath.seedrandom(newSeed)
 }
 
 var cardSetNumbers = []
