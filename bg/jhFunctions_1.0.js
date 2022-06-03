@@ -164,7 +164,7 @@ function funcInsertFullScreenButton(_topLeftX, _topLeftY, _bottomRightX, _bottom
     btnFull.onclick = funcFullScreen
     btnFull.style.position = "absolute"
     btnFull.style.border = "0px"
-    btnFull.style.backgroundImage = "url('img/fullscreen.png')"
+    btnFull.style.backgroundImage = "url('../img/fullscreen.png')"
     btnFull.style.borderRadius = "10%"
     btnFull.style.innerHTML="최대"
     btnFull.style.color="black"

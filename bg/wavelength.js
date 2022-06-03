@@ -33,7 +33,7 @@ funcUpdatePageSize(true)
 let curMode = 0
 
 let selectedCardIdx = 0
-let people=['진현','철수','세글자','네글자다','다섯글자다','aa','bbb']
+let people=[]
 let problemMod=true
 let answerLoc = 51
 let answerLen = 3
@@ -105,7 +105,7 @@ function showSolve(){
 
 function funcDrawWavelength(){
 
-    
+    funcInsertFullScreenButton(0.01, 0.01,0.05,0.1)
 
     let center = 0.1+ 0.8*answerLoc/1000
     
@@ -120,10 +120,10 @@ function funcDrawWavelength(){
     locs[0].style.backgroundColor = "red"
 
     let btnCard = funcInsertElement("btnCard", "button", "btnTrans", 0.4, 0.01, 0.6, 0.19)
-    let startBtn = funcInsertElement("startBtn", "button", "btnTrans", 0.01, 0.01, 0.11, 0.19, 0.5)
+    let startBtn = funcInsertElement("startBtn", "button", "btnTrans", 0.05, 0.01, 0.15, 0.19, 0.5)
     startBtn.onclick = function(){startSolve()}
     startBtn.innerHTML="start"
-    let inpPlayers = funcInsertElement("inpPlayers", "input", "btnTrans", 0.10, 0.01, 0.20, 0.19, 0.5)
+    let inpPlayers = funcInsertElement("inpPlayers", "input", "btnTrans", 0.15, 0.01, 0.20, 0.19, 0.5)
     if (inpPlayers.value == '') inpPlayers.value = 2
    
     let checkBtn = funcInsertElement("checkBtn", "button", "btnTrans", 0.85, 0.01, 0.95, 0.19, 0.5)
