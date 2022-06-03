@@ -10,21 +10,19 @@
   
 .rangeClass::-webkit-slider-thumb { 
     -webkit-appearance: none;
-    background: red;
+    background: black;
     cursor: pointer;
     border: 1px solid #000000; 
     height: 100%;
     width: 2%;   
     margin-top: 0px; 
-    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
     border-radius: 3px;
+    border:0px;
   }
 
 .rangeClass{
 	width:100%;
 	-webkit-appearance: none;
-	background: white;
-
 }  
 
 input[type=range] {
@@ -49,7 +47,7 @@ body {
     background-color: transparent;
     text-align-last: center;
     position: absolute;
-    font-family: 'Sriracha', cursive;
+    font-family: 'Nanum Pen Script', cursive;
 }
 
 .sltTrans {
