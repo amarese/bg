@@ -11,14 +11,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from selenium.webdriver.common.alert import Alert
-#import chromedriver_autoinstaller
+import chromedriver_autoinstaller
 import telegram
 import sys
 #import chromedriver_autoinstaller
-#path = chromedriver_autoinstaller.install(cwd=True)
+path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 
-debugMode = True
+debugMode = False
 cities = ['수서','동탄','평택지제','천안아산','오송','대전','김천','동대구','서대구','신경주','울산(통도사)','부산','익산','정읍','광주송정','나주','목포']
 weekdayArr = ['월','화','수','목','금','토','일']
 browser = None
@@ -115,7 +115,7 @@ while True:
     #chromeOptions.add_argument("headless")
     if browser == None:
         chromeOptions = webdriver.ChromeOptions()
-        browser = webdriver.Chrome( #executable_path=path,
+        browser = webdriver.Chrome( executable_path=path,
                                         options=chromeOptions)
         wait = WebDriverWait(browser, 10)
     
