@@ -18,7 +18,7 @@ import sys
 path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 
-debugMode = False
+debugMode = True
 cities = ['수서','동탄','평택지제','천안아산','오송','대전','김천','동대구','서대구','신경주','울산(통도사)','부산','익산','정읍','광주송정','나주','목포']
 weekdayArr = ['월','화','수','목','금','토','일']
 browser = None
@@ -29,10 +29,10 @@ searchTime = None
 while True:
     if debugMode == True:
         phoneNumber = '010-8998-9272'
-        password = ""
-        srcLoc = '동탄'
-        descLoc = '대전'
-        targetDate = '2022-05-19'
+        password = "15751!ace"
+        srcLoc = '대전'
+        descLoc = '동탄'
+        targetDate = '2022-06-06'
         searchTime = 20
     else:
         phoneNumber = None
@@ -145,42 +145,48 @@ debugCount = 0
 targetTd = None
 while True:
     try:
-        debugCount+=1
-        browser.get("https://etk.srail.kr/hpg/hra/01/selectScheduleList.do?pageId=TK0101010000")
-        wait.until(EC.presence_of_element_located((By.ID,"dptRsStnCdNm")))
+        while True:
+            try:
+                debugCount+=1
+                browser.get("https://etk.srail.kr/hpg/hra/01/selectScheduleList.do?pageId=TK0101010000")
+                wait.until(EC.presence_of_element_located((By.ID,"dptRsStnCdNm")))
 
-        browser.find_element(By.ID, "dptRsStnCdNm").clear()
-        browser.find_element(By.ID, "dptRsStnCdNm").send_keys(srcLoc)
-        browser.find_element(By.ID, "arvRsStnCdNm").clear()
-        browser.find_element(By.ID, "arvRsStnCdNm").send_keys(descLoc)
-        dropdown = browser.find_element(By.ID, "dptDt")
-        dropdown.find_element(By.XPATH, dateXpath).click()
-        
-        # if debugCount == 3:
-        #     searchTime = 13
-        
-        cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='"+str(searchTime)+"0000'"
-        if searchTime < 10:
-            cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='0"+str(searchTime)+"0000'"
-        browser.execute_script(cmd)
-        
-        browser.find_element(By.CSS_SELECTOR, ".btn_large").click()
+                browser.find_element(By.ID, "dptRsStnCdNm").clear()
+                browser.find_element(By.ID, "dptRsStnCdNm").send_keys(srcLoc)
+                browser.find_element(By.ID, "arvRsStnCdNm").clear()
+                browser.find_element(By.ID, "arvRsStnCdNm").send_keys(descLoc)
+                dropdown = browser.find_element(By.ID, "dptDt")
+                dropdown.find_element(By.XPATH, dateXpath).click()
+                
+                # if debugCount == 3:
+                #     searchTime = 13
+                
+                cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='"+str(searchTime)+"0000'"
+                if searchTime < 10:
+                    cmd = "document.getElementById('dptTm').selectedIndex=0;document.getElementById('dptTm').children[0].value='0"+str(searchTime)+"0000'"
+                browser.execute_script(cmd)
+                
+                browser.find_element(By.CSS_SELECTOR, ".btn_large").click()
 
-        wait.until(EC.presence_of_element_located((By.XPATH, "//tr[1]/td[7]")))
-        targetTd = browser.find_element(By.XPATH, "//tr[1]/td[7]")
-        if targetTd.text != '매진':
-            break
-        
-    except:    
-        print('redo')
-        
+                wait.until(EC.presence_of_element_located((By.XPATH, "//tr[1]/td[7]")))
+                targetTd = browser.find_element(By.XPATH, "//tr[1]/td[7]")
+                if targetTd.text != '매진':
+                    break
+                
+            except:    
+                print('redo')
+                
 
-wait.until(EC.element_to_be_clickable((By.XPATH, "//tr[1]/td[7]/a")))
-browser.find_element(By.XPATH, "//tr[1]/td[7]/a").click()
+        wait.until(EC.element_to_be_clickable((By.XPATH, "//tr[1]/td[7]/a")))
+        browser.find_element(By.XPATH, "//tr[1]/td[7]/a").click()
 
 
-wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_dark > span')))
-browser.find_element(By.CSS_SELECTOR, '.btn_blue_dark > span').click()
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_dark > span')))
+        browser.find_element(By.CSS_SELECTOR, '.btn_blue_dark > span').click()
+        break
+    
+    except:
+        print("redo out")            
 
 chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
 chat = telegram.Bot(token = chat_token)

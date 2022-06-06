@@ -36,7 +36,7 @@ let selectedCardIdx = 0
 let people=[]
 let problemMod=true
 let answerLoc = 51
-let answerLen = 3
+let answerLen = 5
 let locs=[]
 
 function min(a,b){
@@ -52,6 +52,7 @@ let range = []
 let nameBtn = []
 let btnWords = []
 answerLoc=MMath.getRandom(0,1000)
+let numOfPlayers = 2
 function funcSetLoc(){
     curMode = 0
     answerLoc=MMath.getRandom(0,1000)
@@ -123,8 +124,15 @@ function funcDrawWavelength(){
     let startBtn = funcInsertElement("startBtn", "button", "btnTrans", 0.05, 0.01, 0.15, 0.19, 0.5)
     startBtn.onclick = function(){startSolve()}
     startBtn.innerHTML="start"
-    let inpPlayers = funcInsertElement("inpPlayers", "input", "btnTrans", 0.15, 0.01, 0.20, 0.19, 0.5)
-    if (inpPlayers.value == '') inpPlayers.value = 2
+    let inpPlayers = funcInsertElement("inpPlayers", "button", "btnTrans", 0.15, 0.01, 0.20, 0.19, 0.5)
+    inpPlayers.innerHTML = numOfPlayers
+    inpPlayers.onclick = function(){
+        numOfPlayers = prompt("몇 명이 플레이 하시겠습니까?")
+        if (!(numOfPlayers >= 2 && numOfPlayers <=10)){
+            numOfPlayers = 2
+        }
+        inpPlayers.innerHTML=numOfPlayers
+    }
    
     let checkBtn = funcInsertElement("checkBtn", "button", "btnTrans", 0.85, 0.01, 0.95, 0.19, 0.5)
     checkBtn.onclick = function(){showSolve()}
@@ -143,7 +151,7 @@ function funcDrawWavelength(){
     btnCard.style.backgroundPositionX="50%"
 
     people=[]
-    for (let idx = 0; idx < Number(inpPlayers.value); idx++) {
+    for (let idx = 0; idx < numOfPlayers; idx++) {
         people[idx]=idx+1
         
     }
