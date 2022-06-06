@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다소미이쁘다</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mainDiv">
+
+        <button onclick="makeOriginData()">makeOriginData</button>
+        <button onclick="decayData()">decay</button>
+        <button onclick="recon()">recon</button>
+    </div>
+</body>
+<script>
+    let mainDiv = document.getElementById('mainDiv')
+    {
+        let tbl = document.createElement('table')
+        for (let idx = 0; idx < 16; idx++) {
+            let tr = document.createElement('tr')
+            for (let idx2 = 0; idx2 < 64; idx2++) {
+                let td = document.createElement('td')
+                tr.appendChild(td)
+                td.id = "td" + idx + "_" + idx2
+                td.style.width = "15px"
+                td.style.height = "15px"
+                if (idx == 8) {
+                    td.style.borderTop = "5px solid black"
+                }
+                if (idx2 % 8 == 0) {
+                    td.style.borderLeft = "5px solid black"
+                }
+
+            }
+            tbl.appendChild(tr)
+        }
+        mainDiv.appendChild(tbl)
+    }
+
+    {
+        mainDiv.appendChild(document.createElement("br"))
+        mainDiv.appendChild(document.createElement("br"))
+        let tbl = document.createElement('table')
+        for (let idx = 0; idx < 16; idx++) {
+            let tr = document.createElement('tr')
+            for (let idx2 = 0; idx2 < 64; idx2++) {
+                let td = document.createElement('td')
+                tr.appendChild(td)
+                td.id = "newtd" + idx + "_" + idx2
+                td.style.width = "15px"
+                td.style.height = "15px"
+                
+            }
+            tbl.appendChild(tr)
+        }
+        mainDiv.appendChild(tbl)
+    }
+
+
+    let WORD = [
+        [
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+        ],
+        [
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+        ],
+        [
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+        ],
+        [
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+        ],
+        [
+            [1, 1, 1, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 0, 1, 0, 0, 0, 0],
+            [1, 0, 0, 1, 0, 0, 0, 0],
+            [1, 0, 0, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0, 0],
+        ],
+        [
+            [0, 0, 0, 0, 1, 1, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 1],
+            [0, 0, 0, 0, 1, 0, 0, 1],
+            [0, 0, 0, 0, 1, 1, 1, 1],
+        ],
+        [
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+        ],
+        [
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+        ]
+    ];
+
+    let seed = 18043000;
+    function random() {
+        seed = seed * 214013 + 2531011;
+        seed = seed & 0x7fffffff
+        return (seed >> 16) & 0x7FFF;
+    }
+
+    function rand() {
+        min = Math.ceil(0);
+        max = Math.floor(0x7fffffff);
+        return Math.floor(random() * (max - min)) + min; //최댓값은 제외, 최솟값은 포함
+    }
+
+    let originData = []
+    for (let idx = 0; idx < 16; idx++) {
+        originData[idx] = []
+        for (let idx2 = 0; idx2 < 64; idx2++) {
+            originData[idx][idx2] = 0
+
+        }
+
+    }
+
+
+
+    function makeOriginData() {
+        let seed = rand() % 10000
+        let rem = 1000, now, sx = 0, sy = 0;
+        for (let idx = 0; idx < 16; idx++) {
+            for (let idx2 = 0; idx2 < 64; idx2++) {
+                originData[idx][idx2] = 0
+                document.getElementById("td" + idx + "_" + idx2).style.backgroundColor = "white"
+                document.getElementById("newtd" + idx + "_" + idx2).style.backgroundColor = "white"
+                document.getElementById("newtd" + idx + "_" + idx2).style.border = "1px solid black"
+                if (idx == 8) {
+                    document.getElementById("newtd" + idx + "_" + idx2).style.borderTop = "5px solid black"
+                }
+                if (idx2 % 8 == 0) {
+                    document.getElementById("newtd" + idx + "_" + idx2).style.borderLeft = "5px solid black"
+                }
+            }
+        }
+        for (let i = 0; i < 4; i++) {
+            sy += rand() % 8;
+            sx = rand() % 8;
+            now = Math.floor(seed / rem)
+            console.log("" + sx + "," + sy + ":" + now)
+            seed %= rem;
+            rem = Math.floor(rem / 10);
+
+            for (let x = sx, ix = 0; x < sx + 8; x++, ix++) {
+                for (let y = sy, iy = 0; y < sy + 8; y++, iy++) {
+                    originData[x][y] = WORD[now][ix][iy];
+                    document.getElementById("td" + x + "_" + y).style.backgroundColor = "gray"
+                    document.getElementById("newtd" + x + "_" + y).style.backgroundColor = "gray"
+
+                }
+            }
+            sy += 8;
+        }
+        showData("td")
+        decayData()
+    }
+
+    function showData(tagName) {
+        for (let idx = 0; idx < 16; idx++) {
+            for (let idx2 = 0; idx2 < 64; idx2++) {
+                if (originData[idx][idx2] == 1) {
+                    document.getElementById(tagName + idx + "_" + idx2).style.backgroundColor = "black"
+                } else if (document.getElementById(tagName + idx + "_" + idx2).style.backgroundColor != "gray") {
+                    document.getElementById(tagName + idx + "_" + idx2).style.backgroundColor = "white"
+                }
+            }
+        }
+    }
+
+
+    makeOriginData()
+    function decayData() {
+        let cha = 0;
+        for (let i = 0; i < 16; i++)
+            for (let j = 0; j < 64; j++)
+                if (rand() % 10 == 4)
+                    cha++, originData[i][j] = 1 - originData[i][j];
+        console.log(cha)
+        showData("newtd")
+    }
+
+    function toBitStr(a) {
+        let ret = ""
+        for (let idx = 0; idx < 32 - a.toString(2).length; idx++) {
+            ret += '0'
+        }
+        a = ret + a.toString(2)
+        return a.substr(0, 8) + " " + a.substr(8, 8) + " " + a.substr(16, 8) + " " + a.substr(24, 8)
+    }
+    function get1bit(a) {
+        a = (a & 0x55555555) + ((a >> 1) & 0x55555555)
+        a = (a & 0x33333333) + ((a >> 2) & 0x33333333)
+        a = (a & 0x0f0f0f0f) + ((a >> 4) & 0x0f0f0f0f) // 0000111100001111
+        a = (a & 0x00ff00ff) + ((a >> 8) & 0x00ff00ff) // 0000000011111111
+        a = (a & 0x0000ffff) + ((a >> 16) & 0x0000ffff) // 0000000011111111
+        return a
+    }
+
+    let symbol
+    let compSymbol
+    let compNu = []
+    for (let idx = 0; idx < 10; idx++) {
+        compNu[idx] = []
+        let temp = 0
+        let mod = 0b10000000000000000000000000000000
+        for (let idx2 = 0; idx2 < 4; idx2++) {
+            for (let idx3 = 0; idx3 < 8; idx3++) {
+                temp += WORD[idx][idx2][idx3] * mod
+                mod /= 2
+            }
+        }
+        compNu[idx][0] = temp
+        temp = 0
+        mod = 0b10000000000000000000000000000000
+        for (let idx2 = 4; idx2 < 8; idx2++) {
+            for (let idx3 = 0; idx3 < 8; idx3++) {
+                temp += WORD[idx][idx2][idx3] * mod
+                mod /= 2
+            }
+        }
+        compNu[idx][1] = temp
+    }
+    function getbits(a, b) {
+        return get1bit(a[0] ^ b[0]) + get1bit(a[1] ^ b[1])
+    }
+
+    function naiveRecon(){
+        for (let idx = 0; idx + 7 < 16; idx++) {
+            for (let idx2 = 0; idx2 + 7 < 64; idx2++) {
+                for (let idx3 = 0; idx3 < 10; idx3++) {
+                    let dif = 0
+                    for (let i = 0; i < 8; i++) {
+                        for (let j = 0; j < 8; j++) {
+                            if (WORD[idx3][i][j]!=originData[idx+i][idx2+j]){
+                                dif++
+
+                            }
+                        }
+                    }                
+                    if (dif<10){
+                        console.log(""+dif+" in loc:"+idx+","+idx2+" with number "+idx3)
+                    }    
+                }
+            }
+        }
+    }
+
+    function recon() {
+        symbol = []
+        for (let idx = 0; idx < 16; idx++) {
+            symbol[idx] = []
+
+            let temp = 0
+            let mod = 0b10000000
+            for (let idx2 = 0; idx2 < 8; idx2++) {
+                temp += originData[idx][idx2] * mod
+                mod = mod >> 1
+            }
+            symbol[idx][0] = temp
+            let startIdx = 1
+            while (startIdx + 7 < 64) {
+                temp = temp << 1
+                temp = temp & 0b11111111
+                temp += originData[idx][startIdx + 7]
+                symbol[idx][startIdx] = temp
+                ++startIdx
+            }
+        }
+        compSymbol = []
+        for (let idx = 0; idx + 7 < 16; idx++) {
+            compSymbol[idx] = []
+            for (let idx2 = 0; idx2 + 7 < 64; idx2++) {
+                compSymbol[idx][idx2] = []
+                compSymbol[idx][idx2][0] =
+                    ((symbol[idx][idx2] << 24) >>> 0) +
+                    (symbol[idx + 1][idx2] << 16) +
+                    (symbol[idx + 2][idx2] << 8) +
+                    (symbol[idx + 3][idx2] << 0)
+                compSymbol[idx][idx2][1] =
+                    ((symbol[idx + 4][idx2] << 24) >>> 0) +
+                    (symbol[idx + 5][idx2] << 16) +
+                    (symbol[idx + 6][idx2] << 8) +
+                    (symbol[idx + 7][idx2] << 0)
+
+                for (let idx3 = 0; idx3 < 10; idx3++) {
+                    if (getbits(compNu[idx3],compSymbol[idx][idx2])<10){
+                        console.log(""+getbits(compNu[idx3],compSymbol[idx][idx2])+" in loc:"+idx+","+idx2+" with number "+idx3)
+
+                        for (let i = 0; i < 8.; i++) {
+                            document.getElementById("newtd"+idx+"_"+(idx2+i)).style.borderTop = "red dotted"
+                            document.getElementById("newtd"+(idx+7)+"_"+(idx2+i)).style.borderBottom = " red dotted"
+                            document.getElementById("newtd"+(i+idx)+"_"+(idx2)).style.borderLeft = " red dotted"
+                            document.getElementById("newtd"+(i+idx)+"_"+(idx2+7)).style.borderRight = " red dotted"
+                        }
+
+                    }                    
+                }
+            }
+            
+
+        }
+
+    }
+
+    recon()
+
+</script>
+
+</html>
