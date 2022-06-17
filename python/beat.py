@@ -1,4 +1,4 @@
-company = True
+ATCOMPANY = True
 DEBUG = True
 
 from datetime import date, timedelta
@@ -11,58 +11,251 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
+from selenium.webdriver.common.keys import Keys
 import telegram
 import sys
 from tkinter.simpledialog import *
 from random import randrange
 from selenium.webdriver.common.action_chains import ActionChains
 import gspread
+import datetime
+
+
+def getReverse(val:str):
+    MASK = []
+    seed = 13
+    for _ in range(10):
+        seed = seed * 521
+        MASK.append(seed %256)
+    ret = ""
+    idx = 0
+    for c in val:
+        ret += chr(ord(c)^MASK[idx])
+        idx += 1
+        if idx == len(MASK):
+            idx = 0
+    return ret
+
+
+def LoginPayco(browser:webdriver.Chrome, wait:WebDriverWait, id:str, passwd:str) -> None:
+    browser.get("https://www.payco.com/")
+    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "로그인")))
+    browser.find_element(By.LINK_TEXT, "로그인").click()
+    for handle in browser.window_handles:
+        browser.switch_to.window(handle)
+        if browser.title=='로그인':
+            break
+    
+    wait.until(EC.element_to_be_clickable((By.ID, "loginBtn")))
+    browser.find_element(By.ID, "id").clear()
+    browser.find_element(By.ID, "id").send_keys(id)
+    browser.find_element(By.ID, "pw").clear()
+    browser.find_element(By.ID, "pw").send_keys(getReverse(passwd))
+    browser.find_element(By.ID, "persistLoginYnIco").click()
+    browser.find_element(By.ID, "loginBtn").send_keys(Keys.ENTER)
+    
+    for handle in browser.window_handles:
+        browser.switch_to.window(handle)
+        break
+
+    
+def getDis(time1, time2):
+    if time1<time2:
+        return time2-time1
+    return time1-time2
+    
+def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
+                themaName:str, storeName:str, reserveDate:str, reserveTime:str, 
+                reserveName:str, reservePb:str, reservePw:str,  reserveEmail:str = None) -> None:
+    
+    if reserveEmail == None:
+        emCom = "@naver.com"
+        if randrange(2)==0:
+            emCom = "@google.com"
+        reserveEmail = reservePb + emCom
+    
+    browser.maximize_window()
+    browser.get("https://www.xphobia.net/reservation/reservation_check.php")
+    
+    wait.until(EC.element_to_be_clickable((By.ID, "cate_3")))
+    browser.find_element(By.ID, "cate_3").click()
+    wait.until(EC.element_to_be_clickable((By.ID, storeName))) # 강남던전
+    browser.find_element(By.ID, storeName).click()
+
+
+    jsCommand = "document.getElementsByClassName('input_date')[0].value='"+reserveDate+"'"
+    browser.execute_script(jsCommand)
+    wait.until(EC.element_to_be_clickable((By.ID, themaName)))
+    browser.find_element(By.ID, themaName).click()
+
+    
+    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+    timeLists = browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+    targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
+    bestGap = None
+    bestBtn = None
+    for timeBtn in timeLists:
+        tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
+        if timeBtn.get_attribute('class') == "":
+            curGap = getDis(tempTime, targetTime)
+            if bestBtn == None or curGap < bestGap:
+                bestBtn = timeBtn
+                bestGap = curGap
+                
+                
+            
+    if bestBtn == None:
+        askyesno("실패","가능한 시간 없음")
+        return
+    
+    reserveTime = bestBtn.get_attribute('id')
+    bestBtn.click()
+
+    
+    jsCommand = "submitNext()"
+    browser.execute_script(jsCommand)
+
+    # 2nd page
+    wait.until(EC.element_to_be_clickable((By.ID, "agree")))
+    jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
+    browser.execute_script(jsCommand)
+    
+    
+    #third page
+    
+    wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
+    ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
+
+    nameText = browser.find_element(By.ID,"event_disc")
+    browser.execute_script("arguments[0].scrollIntoView();", nameText)
+
+    jsCommand="document.getElementById('rena').value='"+reserveName+"';\
+        document.getElementById('reph').value='"+reservePb+"';\
+        document.getElementById('remd').value='"+reserveEmail+"';\
+        document.getElementsByName('te_pass')[0].type='text';\
+        document.getElementsByName('te_pass')[0].value='"+str(reservePw)+"';\
+        document.getElementById('od_settle_card').checked=true;\
+        document.getElementById('terms1').checked=true;\
+        document.getElementById('terms2').checked=true;"
+
+    browser.execute_script(jsCommand)
+    
+    tempReserveTime = reserveTime.replace(":","")
+    with open('page_'+f"{reserveDate}_{themaName}_{tempReserveTime}_"+'.txt', 'a+', -1, 'utf-8') as f:
+        f.write(f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
+
+    if ATCOMPANY  == False:
+        chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
+        chat = telegram.Bot(token = chat_token)
+        chat_id = 763073279
+        chat.sendMessage(chat_id = chat_id, text=f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
+    
+        gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
+        sh = gc.open("비트포비아양도").worksheet("비트")
+        rowIdx = 1
+        while len(sh.get('F'+str(rowIdx))) != 0:
+            rowIdx += 1
+        sh.update('F'+str(rowIdx),reserveDate)
+        sh.update('G'+str(rowIdx),reserveTime)
+        sh.update('J'+str(rowIdx),reserveName)
+        sh.update('K'+str(rowIdx),reservePb)
+        sh.update('L'+str(rowIdx),reservePw)
+        sh.update('O'+str(rowIdx),ppoid)
+        
+    
+    respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
+    while respond == False:
+        respond = askyesno('종료', '종료?')
+        if respond == True:
+            return
+        respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
+    
+    
+    
+    browser.find_element(By.CLASS_NAME,"btn_submit").click()
+    
+    wait(EC.presence_of_element_located((By.CSS_SELECTOR,'iframe')))
+    browser.switch_to.frame(browser.find_element(By.CSS_SELECTOR,'iframe').get_attribute('name'))
+
+    
+    
+    wait.until(EC.element_to_be_clickable((By.ID,"inputAll")))
+    browser.find_element(By.ID,"inputAll").click()
+    
+'''
+    id=inputAll
+    xpath=//a[@id='payCode20']/img
+    
+    xpath=//a/span[2]
+
+css=#pgCardList_nextBtn > .sp
+
+id=btnPayment
+'''
+    
+
 
 if __name__ == "__main__":
+    
+    chromeOptions = webdriver.ChromeOptions()
+    browser = webdriver.Chrome( #executable_path=path,
+                                    options=chromeOptions)
+    wait = WebDriverWait(browser, 10)
+    
+    LoginPayco(browser, wait, "cutehanjh@gmail.com", "F)2\x15´\\F(ß4\x1b")
+    reserveXpho(browser=browser, wait=wait, themaName='강남목욕탕',storeName='강남 던전',reserveName='이성훈',
+                reservePb='01051233215', reservePw='123456', reserveDate='20220625',reserveTime='12:30')
+    
+    
+    
+    
+
     
     themaNames = ['화생설화 : Blooming','강남목욕탕','대호시장 살인사건','전래동 : 자살사건']
     storeNames = ['던전101','강남 던전','강남 던전','던전101']
 
-    idx = 0
-    for i in range(len(themaNames)):
-        answer = askyesno('테마',themaNames[i])    
-        if answer== True:
-            idx = i
-            break
+    if DEBUG == False:
 
-    themaName = themaNames[idx]
-    storeName = storeNames[idx]
-    reserveName = None
-    reservePb = None
-    reserveDate = None
-    reserveTime = None
-    weekend = askyesno("주말","이번주 주말")
-    if weekend == True:
-        saturday = askyesno("토요일","토요일")
-        targetWeekDay = 5
-        if saturday == False:
-            targetWeekDay = 6
-        todayWeekDay = date.today().weekday()
-        timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7
-        reserveDate = date.today() + timedelta(days=timeDelta)
-    else:
-        while True:
-            reserveDate = askstring("날짜","날짜 (ex. 20220601)")        
-            breakLoop = askyesno("확인",f"날짜:{reserveDate}")
-            if breakLoop == True:
+        idx = 0
+        for i in range(len(themaNames)):
+            answer = askyesno('테마',themaNames[i])    
+            if answer== True:
+                idx = i
                 break
-        
-    autoMode = askyesno("자동모드","자동모드로 실행")
-    if autoMode == False:
-        while True:
-            reserveName = askstring('이름','이름 (ex. 홍길동)')
-            reservePb = askstring('폰번호',"폰번호 (ex. 01012345678)")
-            reserveTime = askstring('시간','시간 (ex. 11:20)')
-            breakLoop = askyesno('확인',f'이름:{reserveName} 폰:{reservePb} 시간:{reserveTime}')
-            if breakLoop == True:
-                break
+
+        themaName = themaNames[idx]
+        storeName = storeNames[idx]
+        reserveName = None
+        reservePb = None
+        reserveDate = None
+        reserveTime = None
+        weekend = askyesno("주말","이번주 주말")
+        if weekend == True:
+            saturday = askyesno("토요일","토요일")
+            targetWeekDay = 5
+            if saturday == False:
+                targetWeekDay = 6
+            todayWeekDay = date.today().weekday()
+            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7
+            reserveDate = date.today() + timedelta(days=timeDelta)
+        else:
+            while True:
+                reserveDate = askstring("날짜","날짜 (ex. 20220601)")        
+                breakLoop = askyesno("확인",f"날짜:{reserveDate}")
+                if breakLoop == True:
+                    break
             
-        
+        autoMode = askyesno("자동모드","자동모드로 실행")
+        if autoMode == False:
+            while True:
+                reserveName = askstring('이름','이름 (ex. 홍길동)')
+                reservePb = askstring('폰번호',"폰번호 (ex. 01012345678)")
+                reserveTime = askstring('시간','시간 (ex. 11:20)')
+                breakLoop = askyesno('확인',f'이름:{reserveName} 폰:{reservePb} 시간:{reserveTime}')
+                if breakLoop == True:
+                    break
+                
+            
 
     if company == False:
         import chromedriver_autoinstaller
@@ -85,7 +278,7 @@ if __name__ == "__main__":
 
     familyNames = ['김', '이', '박', '최', '한', '정', '송', '정', '현']
 
-    frequentyNames = ["가윤", "강민", "규리", "규민", "나윤", "나은", "다온", "다윤", "다은",
+    frequentNames = ["가윤", "강민", "규리", "규민", "나윤", "나은", "다온", "다윤", "다은",
     "도연", "도윤", "도현", "동현", "민아", "서연", "서우", "서은", "서준", "서진", "서하",
     "서현", "선우", "성민", "성준", "성현", "소민", "소율", "수민", "수빈", "수아", "수연",
     "수현", "수호", "승민", "승아", "승우", "승준", "승현", "시아", "시온", "시우", "시현",
@@ -96,148 +289,11 @@ if __name__ == "__main__":
     "지은", "지한", "지현", "지환", "지후", "지훈", "진우", "채린", "채원", "채은", "태민",
     "태현", "하연", "하율", "현서", "현우", "혜원"]
 
+    if reservePb == None:
+        reservePb = bkNumbers[randrange(len(bkNumbers))].replace("-","")
+    if reserveName == None:
+        reserveName = familyNames[randrange(len(familyNames))] + frequentNames[randrange(len(frequentNames))]
 
-    tryNumber = 1
-    newNumber = []
-
-    newNames = []
-    while True:
-        try:
-            if len(newNumber) == 0:
-                for i in range(tryNumber):
-                    newNumber.append(bkNumbers[randrange(len(bkNumbers))])
-
-            for i in range(tryNumber):
-                newNames.append(familyNames[randrange(len(familyNames))] +
-                                frequentyNames[randrange(len(frequentyNames))])
-            break
-        except:
-            print('again')
-
-    newNumber[0].replace("-","")
-    bathroom = "no"
-
-    chromeOptions = webdriver.ChromeOptions()
-    browser = webdriver.Chrome( #executable_path=path,
-                                    options=chromeOptions)
-    wait = WebDriverWait(browser, 10)
-
-    '''
-    browser.get("https://www.payco.com/")
-
-    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "로그인")))
-    browser.find_element(By.LINK_TEXT, "로그인").click()
-
-    for handle in browser.window_handles:
-        browser.switch_to.window(handle)
-        if browser.title=='로그인':
-            break
-    
-    
-    wait.until(EC.element_to_be_clickable((By.ID, "loginBtn")))
-    browser.find_element(By.ID, "id").clear()
-    browser.find_element(By.ID, "id").send_keys("cutehanjh@gmail.com")
-    browser.find_element(By.ID, "pw").clear()
-    browser.find_element(By.ID, "pw").send_keys("")
-    browser.find_element(By.ID, "persistLoginYnIco").click()
-    browser.find_element(By.ID, "loginBtn").send_keys(Keys.ENTER)
-    '''
-
-    browser.maximize_window()
-
-
-    browser.get("https://www.xphobia.net/reservation/reservation_check.php")
-    
-    shopID = storeName
-    themaID = themaName
-
-    wait.until(EC.element_to_be_clickable((By.ID, "cate_3")))
-    browser.find_element(By.ID, "cate_3").click()
-    wait.until(EC.element_to_be_clickable((By.ID, shopID))) #  강남던전
-    browser.find_element(By.ID, shopID).click()
-
-    jsCommand = "document.getElementsByClassName('input_date')[0].value='"+reserveDate+"'"
-    browser.execute_script(jsCommand)
-    wait.until(EC.element_to_be_clickable((By.ID, themaID)))
-    browser.find_element(By.ID, themaID).click()
-    # css=#\D654\C0DD\C124\D654\ \3A\ Blooming > p // 화생설화
-
-    targetTime = 3
-    newTime = None
-    while True:
-        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
-        timeLists = browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
-        btnTime = timeLists[targetTime]
-        newTime = btnTime.get_attribute('id')
-        if btnTime.get_attribute('class') == "":
-            btnTime.click()
-            break
-        targetTime += 2
-        if targetTime == 9:
-            targetTime = 4
-        if targetTime == 10:
-            sys.exit()
-    
-    jsCommand = "submitNext()"
-    browser.execute_script(jsCommand)
-
-    newNumber[0] = newNumber[0].replace("-","")
-    
-    
-    # 2nd page
-    wait.until(EC.element_to_be_clickable((By.ID, "agree")))
-    jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
-    browser.execute_script(jsCommand)
-    
-    
-    #third page
-    newPassword = randrange(1000,100000)
-    
-    
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
-    ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
-
-    nameText = browser.find_element(By.ID,"event_disc")
-    browser.execute_script("arguments[0].scrollIntoView();", nameText)
-
-
-    jsCommand="document.getElementById('rena').value='"+newNames[0]+"';\
-        document.getElementById('reph').value='"+newNumber[0]+"';\
-        document.getElementById('remd').value='"+newNumber[0]+"@naver.com';\
-        document.getElementsByName('te_pass')[0].type='text';\
-        document.getElementsByName('te_pass')[0].value='"+str(newPassword)+"';\
-        document.getElementById('od_settle_card').checked=true;\
-        document.getElementById('terms1').checked=true;\
-        document.getElementById('terms2').checked=true;"
-
-    browser.execute_script(jsCommand)
-    
-    themaName = themaID.replace(":","")
-    with open('page_'+f"{targetDate}_{themaName}_{targetTime}_{newNames[0]}"+'.txt', 'a+', -1, 'utf-8') as f:
-        f.write(f"{targetDate}\t{themaName}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{ppoid}\t{newPassword}")
-
-    chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
-    chat = telegram.Bot(token = chat_token)
-    chat_id = 763073279
-    chat.sendMessage(chat_id = chat_id, text=f"{targetDate}\t{newTime}\t{newNames[0]}\t{newNumber[0]}\t{newPassword}\t{ppoid}")
-        
-    
-    gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
-    sh = gc.open("비트포비아양도").worksheet("비트")
-    rowIdx = 1
-    while len(sh.get('F'+str(rowIdx))) != 0:
-        rowIdx += 1
-    sh.update('F'+str(rowIdx),targetDate)
-    sh.update('G'+str(rowIdx),newTime)
-    sh.update('J'+str(rowIdx),newNames[0])
-    sh.update('K'+str(rowIdx),newNumber[0])
-    sh.update('L'+str(rowIdx),newPassword)
-    sh.update('O'+str(rowIdx),ppoid)
-
-
-    askstring('확인', '예약정보를 확인하세요')
-    browser.find_element(By.CLASS_NAME,"btn_submit").click()
-
-    
+   
     print("Done")
     input()
