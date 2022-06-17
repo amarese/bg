@@ -1,11 +1,10 @@
-ATCOMPANY = True
-DEBUG = True
+ATCOMPANY = False
+DEBUG = False
 
 from datetime import date, timedelta
+from multiprocessing.dummy import active_children
 from time import sleep
 from tkinter.messagebox import askquestion, askyesno
-from selenium import webdriver
-from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -19,6 +18,9 @@ from random import randrange
 from selenium.webdriver.common.action_chains import ActionChains
 import gspread
 import datetime
+
+import jhmodule
+from jhmodule import JHSelenium
 
 
 def getReverse(val:str):
@@ -37,25 +39,26 @@ def getReverse(val:str):
     return ret
 
 
-def LoginPayco(browser:webdriver.Chrome, wait:WebDriverWait, id:str, passwd:str) -> None:
+def LoginPayco(JHM: JHSelenium, id:str, passwd:str) -> None:
     browser.get("https://www.payco.com/")
-    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "로그인")))
-    browser.find_element(By.LINK_TEXT, "로그인").click()
-    for handle in browser.window_handles:
-        browser.switch_to.window(handle)
-        if browser.title=='로그인':
+    JHM.waitAndClick(By.LINK_TEXT,"로그인",)
+#    wait.until(EC.element_to_be_clickable((By.LINK_TEXT, "로그인")))
+#    browser.find_element(By.LINK_TEXT, "로그인").click()
+    for handle in JHM.browser.window_handles:
+        JHM.browser.switch_to.window(handle)
+        if JHM.browser.title=='로그인':
             break
     
-    wait.until(EC.element_to_be_clickable((By.ID, "loginBtn")))
-    browser.find_element(By.ID, "id").clear()
-    browser.find_element(By.ID, "id").send_keys(id)
-    browser.find_element(By.ID, "pw").clear()
-    browser.find_element(By.ID, "pw").send_keys(getReverse(passwd))
-    browser.find_element(By.ID, "persistLoginYnIco").click()
-    browser.find_element(By.ID, "loginBtn").send_keys(Keys.ENTER)
+    JHM.wait.until(EC.element_to_be_clickable((By.ID, "loginBtn")))
+    JHM.browser.find_element(By.ID, "id").clear()
+    JHM.browser.find_element(By.ID, "id").send_keys(id)
+    JHM.browser.find_element(By.ID, "pw").clear()
+    JHM.browser.find_element(By.ID, "pw").send_keys(getReverse(passwd))
+    JHM.browser.find_element(By.ID, "persistLoginYnIco").click()
+    JHM.browser.find_element(By.ID, "loginBtn").send_keys(Keys.ENTER)
     
-    for handle in browser.window_handles:
-        browser.switch_to.window(handle)
+    for handle in JHM.browser.window_handles:
+        JHM.browser.switch_to.window(handle)
         break
 
     
@@ -64,8 +67,7 @@ def getDis(time1, time2):
         return time2-time1
     return time1-time2
     
-def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
-                themaName:str, storeName:str, reserveDate:str, reserveTime:str, 
+def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, reserveTime:str, 
                 reserveName:str, reservePb:str, reservePw:str,  reserveEmail:str = None) -> None:
     
     if reserveEmail == None:
@@ -74,23 +76,19 @@ def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
             emCom = "@google.com"
         reserveEmail = reservePb + emCom
     
-    browser.maximize_window()
-    browser.get("https://www.xphobia.net/reservation/reservation_check.php")
+    #browser.maximize_window()
+    JHM.browser.get("https://www.xphobia.net/reservation/reservation_check.php")
     
-    wait.until(EC.element_to_be_clickable((By.ID, "cate_3")))
-    browser.find_element(By.ID, "cate_3").click()
-    wait.until(EC.element_to_be_clickable((By.ID, storeName))) # 강남던전
-    browser.find_element(By.ID, storeName).click()
-
+    JHM.waitAndClick(By.ID, "cate_3")
+    JHM.waitAndClick(By.ID, storeName)
 
     jsCommand = "document.getElementsByClassName('input_date')[0].value='"+reserveDate+"'"
-    browser.execute_script(jsCommand)
-    wait.until(EC.element_to_be_clickable((By.ID, themaName)))
-    browser.find_element(By.ID, themaName).click()
+    JHM.browser.execute_script(jsCommand)
 
-    
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
-    timeLists = browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+    JHM.waitAndClick(By.ID, themaName)
+        
+    JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+    timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
     targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
     bestGap = None
     bestBtn = None
@@ -113,21 +111,21 @@ def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
 
     
     jsCommand = "submitNext()"
-    browser.execute_script(jsCommand)
+    JHM.browser.execute_script(jsCommand)
 
     # 2nd page
-    wait.until(EC.element_to_be_clickable((By.ID, "agree")))
+    JHM.wait.until(EC.element_to_be_clickable((By.ID, "agree")))
     jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
     browser.execute_script(jsCommand)
     
     
     #third page
     
-    wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
+    JHM.wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
     ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
 
-    nameText = browser.find_element(By.ID,"event_disc")
-    browser.execute_script("arguments[0].scrollIntoView();", nameText)
+    nameText = JHM.browser.find_element(By.ID,"event_disc")
+    JHM.browser.execute_script("arguments[0].scrollIntoView();", nameText)
 
     jsCommand="document.getElementById('rena').value='"+reserveName+"';\
         document.getElementById('reph').value='"+reservePb+"';\
@@ -138,7 +136,7 @@ def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
         document.getElementById('terms1').checked=true;\
         document.getElementById('terms2').checked=true;"
 
-    browser.execute_script(jsCommand)
+    JHM.browser.execute_script(jsCommand)
     
     tempReserveTime = reserveTime.replace(":","")
     with open('page_'+f"{reserveDate}_{themaName}_{tempReserveTime}_"+'.txt', 'a+', -1, 'utf-8') as f:
@@ -172,44 +170,35 @@ def reserveXpho(browser:webdriver.Chrome, wait:WebDriverWait,
     
     
     
-    browser.find_element(By.CLASS_NAME,"btn_submit").click()
+    JHM.waitAndClick(By.CLASS_NAME,"btn_submit")
     
-    wait(EC.presence_of_element_located((By.CSS_SELECTOR,'iframe')))
-    browser.switch_to.frame(browser.find_element(By.CSS_SELECTOR,'iframe').get_attribute('name'))
+    JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'iframe')))
+    JHM.browser.switch_to.frame(JHM.browser.find_element(By.CSS_SELECTOR,'iframe').get_attribute('name'))
 
     
     
-    wait.until(EC.element_to_be_clickable((By.ID,"inputAll")))
-    browser.find_element(By.ID,"inputAll").click()
+    JHM.waitAndClick(By.ID,"inputAll")
+        
+    JHM.waitAndClick(By.XPATH,"//a[@id='payCode20']")
     
-'''
-    id=inputAll
-    xpath=//a[@id='payCode20']/img
+    JHM.waitAndClick(By.XPATH,"//a/span[2]")
+    sleep(5)
+
+    for handle in JHM.browser.window_handles:
+        JHM.browser.switch_to.window(handle)
+        if JHM.browser.title=='PAYCO':
+            break
+
+
+    JHM.waitAndClick(By.CSS_SELECTOR,"#pgCardList_nextBtn > .sp")
     
-    xpath=//a/span[2]
-
-css=#pgCardList_nextBtn > .sp
-
-id=btnPayment
-'''
+    JHM.waitAndClick(By.ID,"btnPayment")
     
-
+    respond = askyesno("완료","완료")
+    return
 
 if __name__ == "__main__":
-    
-    chromeOptions = webdriver.ChromeOptions()
-    browser = webdriver.Chrome( #executable_path=path,
-                                    options=chromeOptions)
-    wait = WebDriverWait(browser, 10)
-    
-    LoginPayco(browser, wait, "cutehanjh@gmail.com", "F)2\x15´\\F(ß4\x1b")
-    reserveXpho(browser=browser, wait=wait, themaName='강남목욕탕',storeName='강남 던전',reserveName='이성훈',
-                reservePb='01051233215', reservePw='123456', reserveDate='20220625',reserveTime='12:30')
-    
-    
-    
-    
-
+  
     
     themaNames = ['화생설화 : Blooming','강남목욕탕','대호시장 살인사건','전래동 : 자살사건']
     storeNames = ['던전101','강남 던전','강남 던전','던전101']
@@ -229,6 +218,7 @@ if __name__ == "__main__":
         reservePb = None
         reserveDate = None
         reserveTime = None
+        reservePw = None
         weekend = askyesno("주말","이번주 주말")
         if weekend == True:
             saturday = askyesno("토요일","토요일")
@@ -236,8 +226,11 @@ if __name__ == "__main__":
             if saturday == False:
                 targetWeekDay = 6
             todayWeekDay = date.today().weekday()
-            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7
+            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7 +7
             reserveDate = date.today() + timedelta(days=timeDelta)
+            reserveDate = (str(reserveDate)).replace("-","")
+            reserveTime = "13:00"
+            reservePw = str(randrange(9000) + 1000)
         else:
             while True:
                 reserveDate = askstring("날짜","날짜 (ex. 20220601)")        
@@ -251,16 +244,14 @@ if __name__ == "__main__":
                 reserveName = askstring('이름','이름 (ex. 홍길동)')
                 reservePb = askstring('폰번호',"폰번호 (ex. 01012345678)")
                 reserveTime = askstring('시간','시간 (ex. 11:20)')
+                reservePw = askstring('비번','비번 (ex. 123456)')
                 breakLoop = askyesno('확인',f'이름:{reserveName} 폰:{reservePb} 시간:{reserveTime}')
                 if breakLoop == True:
                     break
                 
             
 
-    if company == False:
-        import chromedriver_autoinstaller
-        path = chromedriver_autoinstaller.install(cwd=True)
-
+    
 
     bkNumbers = ["010-4504-8751", "010-4735-5642", "010-5421-5617", "010-4791-8761",
     "010-8621-1297", "010-8578-1283", "010-6296-8743", "010-9235-3491", "010-4756-3491",
@@ -295,5 +286,23 @@ if __name__ == "__main__":
         reserveName = familyNames[randrange(len(familyNames))] + frequentNames[randrange(len(frequentNames))]
 
    
+    browser = None    
+    chromeOptions = webdriver.ChromeOptions()
+    if ATCOMPANY == False:
+        import chromedriver_autoinstaller
+        path = chromedriver_autoinstaller.install(cwd=True)
+        browser = webdriver.Chrome(executable_path=path, options=chromeOptions)        
+    else:
+        browser = webdriver.Chrome(options=chromeOptions)
+
+    wait = WebDriverWait(browser, 10)
+
+    jhm = JHSelenium(browser,wait)
+
+    LoginPayco(jhm, "cutehanjh@gmail.com", "F)2\x15´\\F(ß4\x1b")
+    reserveXpho(jhm, themaName=themaName,storeName=storeName,reserveName=reserveName,
+                reservePb=reservePb, reservePw=reservePw, reserveDate=reserveDate,reserveTime=reserveTime)
+    
+    
     print("Done")
     input()

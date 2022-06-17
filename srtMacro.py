@@ -32,8 +32,8 @@ while True:
         password = "15751!ace"
         srcLoc = '대전'
         descLoc = '동탄'
-        targetDate = '2022-06-06'
-        searchTime = 20
+        targetDate = '2022-06-13'
+        searchTime = 8
     else:
         phoneNumber = None
         while True:
