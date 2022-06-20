@@ -3,6 +3,7 @@ from distutils.debug import DEBUG
 import pytest
 import time
 import json
+import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -28,64 +29,81 @@ debugCountOut = 0
 path = "https://plit.me/cafe/3"
 if DEBUGMOD:
     path = "https://plit.me/cafe/1"
-while True:
-    if DEBUGMOD:
-        debugCountOut += 1
-        if debugCountOut == 10:
-            break
-    
-    driver.get(path)
-    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".q-btn:nth-child(2) .block")))
-    driver.find_element(By.CSS_SELECTOR, ".q-btn:nth-child(2) .block").click()
 
-    targetDate = 28
-    debugCount = 0
-    idx = 3
-    while True:
-        try:
-            sleep(0.5)
+while True:
+    try:
+        while True:
             if DEBUGMOD:
-                print(debugCount)
-                debugCount +=1 
-                if debugCount == 3:
-                    targetDate = 25
-            driver.find_element(By.XPATH, "//div["+str(targetDate)+"]/button").send_keys(Keys.ENTER)
-            break
-        except:
+                debugCountOut += 1
+                if debugCountOut == 10:
+                    break
+            
             driver.get(path)
             wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".q-btn:nth-child(2) .block")))
             driver.find_element(By.CSS_SELECTOR, ".q-btn:nth-child(2) .block").click()
-            pass
+
+            targetDate = 29
+            debugCount = 0
+            idx = 3
+            while True:
+                try:
+                    sleep(0.5)
+                    if DEBUGMOD:
+                        targetDate = 27
+                    driver.find_element(By.XPATH, "//div["+str(targetDate)+"]/button").send_keys(Keys.ENTER)
+                    print(datetime.datetime.today())
+                    break
+                except:
+                    driver.get(path)
+                    wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".q-btn:nth-child(2) .block")))
+                    driver.find_element(By.CSS_SELECTOR, ".q-btn:nth-child(2) .block").click()
+                    pass
 
 
-    wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button/span[2]")))
-    driver.find_element(By.XPATH,"//footer/div/button/span[2]").click()
+            wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button/span[2]")))
+            driver.find_element(By.XPATH,"//footer/div/button/span[2]").click()
 
-    if DEBUGMOD == True:
-        wait.until(EC.element_to_be_clickable((By.XPATH,"//button[1]/span[2]/div")))
-        clickBtn = driver.find_element(By.XPATH,"//button[1]/span[2]/div")
-    else:
-        wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]/span[2]/div")))
-        clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]/span[2]/div")
+            if DEBUGMOD == True:
+                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[2]")))
+                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[2]")
+            else:
+                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]")))
+                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]")
 
-    
-    while clickBtn.text.find("불가") != -1:
-        idx+=1
-        clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button["+str(idx)+"]/span[2]/div")
-        
-    
-    
-clickBtn.click()
-wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button/span[2]")))
-driver.find_element(By.XPATH,"//footer/div/button[2]/span[2]").click()
+            
+            while clickBtn.text.find("불가") != -1:
+                idx+=1
+                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button["+str(idx)+"]")
+            break
+                
+            
+            
+        clickBtn.click()
+        wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button/span[2]")))
+        driver.find_element(By.XPATH,"//footer/div/button[2]/span[2]").click()
 
-wait.until(EC.element_to_be_clickable((By.NAME, "nickname")))
-driver.find_element(By.NAME, "nickname").send_keys("김지환")
-driver.find_element(By.NAME, "tel").send_keys("20698564")
+        #wait.until(EC.element_to_be_clickable((By.NAME, "nickname")))
+        #driver.find_element(By.NAME, "nickname").send_keys("정성구")
+        #driver.find_element(By.NAME, "tel").send_keys("28761575")
+        #sleep(0.3)
+        #driver.find_element(By.XPATH,"//div[2]/div/button/span[2]/span").click()
+        #sleep(0.3)
+        checkBtn = driver.find_element(By.XPATH,"//footer/div/button[2]")
+        while True:
+            if checkBtn.get_attribute('class').find('disabled') == -1:
+                break
+            sleep(0.5)
 
-driver.find_element(By.XPATH,"//div[2]/div/button/span[2]/span").click()
-a = 3
-b=input()
+        wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button[2]")))
+        driver.find_element(By.XPATH,"//footer/div/button[2]").click()
 
+        wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button[2]")))
+        driver.find_element(By.XPATH,"//footer/div/button[2]").click()
+        break
+    except:
+        pass
+
+
+input()
 
 

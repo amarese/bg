@@ -18,7 +18,7 @@ import sys
 path = chromedriver_autoinstaller.install(cwd=True)
 from tkinter.simpledialog import *
 
-debugMode = True
+debugMode = False
 cities = ['수서','동탄','평택지제','천안아산','오송','대전','김천','동대구','서대구','신경주','울산(통도사)','부산','익산','정읍','광주송정','나주','목포']
 weekdayArr = ['월','화','수','목','금','토','일']
 browser = None

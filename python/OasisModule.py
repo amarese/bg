@@ -6,6 +6,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.expected_conditions import presence_of_element_located
 from time import sleep
+import datetime
 import gspread
 
 import chromedriver_autoinstaller
@@ -60,6 +61,7 @@ def reserveOasis(reserveName : str, reserveTime : int, reservePhone : str, reser
         except:
             print(f"{logStr} error with the {reserveTime}-th time")
 
+    print(datetime.datetime.today())    
     wait.until(EC.element_to_be_clickable((By.ID,'f_submit')))
     jsCmd = "document.getElementById('f_payment').selectedIndex=1;document.getElementById('f_submit').click();"
     webDriver.execute_script(jsCmd)

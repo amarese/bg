@@ -34,7 +34,7 @@ def run(playwright: Playwright) -> None:
     # Click text=나의로또번호
     page6.frame_locator("iframe[name=\"ifrm_tab\"]").locator("text=나의로또번호").click()
     # Check input[name="checkNumberMy"] >> nth=0
-    page6.frame_locator("iframe[name=\"ifrm_tab\"]").locator("input[name=\"checkNumberMy\"]").first.check()
+    page6.framepol_locator("iframe[name=\"ifrm_tab\"]").locator("input[name=\"checkNumberMy\"]").first.check()
     # Check input[name="checkNumberMy"] >> nth=1
     page6.frame_locator("iframe[name=\"ifrm_tab\"]").locator("input[name=\"checkNumberMy\"]").nth(1).check()
     # Click input[name="btnMyNumber"]
