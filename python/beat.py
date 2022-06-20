@@ -1,6 +1,6 @@
-ATCOMPANY = False
 DEBUG = False
 
+import jhconstants
 from datetime import date, timedelta
 from multiprocessing.dummy import active_children
 from time import sleep
@@ -94,15 +94,37 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
     bestBtn = None
     for timeBtn in timeLists:
         tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
-        if timeBtn.get_attribute('class') == "":
-            curGap = getDis(tempTime, targetTime)
-            if bestBtn == None or curGap < bestGap:
-                bestBtn = timeBtn
-                bestGap = curGap
-                
-                
+        curGap = getDis(tempTime, targetTime)
+        if bestBtn == None or curGap < bestGap:
+            bestBtn = timeBtn
+            bestGap = curGap
             
-    if bestBtn == None:
+    
+    if bestBtn.get_attribute('class') != "":
+        if askyesno("실패","이미 예약됨, 반복?"):
+            reserveTime = bestBtn.get_attribute('id')
+            while True:
+                JHM.waitAndClick(By.ID, themaName)
+                JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+                bestBtn=JHM.browser.find_element(By.ID,reserveTime)
+                if bestBtn.get_attribute('class') == "":
+                    break
+                sleep(1.0)
+        else:
+            JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+            timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+            targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
+            bestGap = None
+            bestBtn = None
+            for timeBtn in timeLists:
+                tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
+                curGap = getDis(tempTime, targetTime)
+                if bestBtn == None or curGap < bestGap:
+                    bestBtn = timeBtn
+                    bestGap = curGap
+
+        
+    if bestBtn.get_attribute('class') != "":
         askyesno("실패","가능한 시간 없음")
         return
     
@@ -142,7 +164,7 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
     with open('page_'+f"{reserveDate}_{themaName}_{tempReserveTime}_"+'.txt', 'a+', -1, 'utf-8') as f:
         f.write(f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
 
-    if ATCOMPANY  == False:
+    if jhconstants.ATCOMPANY  == False:
         chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
         chat = telegram.Bot(token = chat_token)
         chat_id = 763073279
@@ -219,6 +241,12 @@ if __name__ == "__main__":
         reserveDate = None
         reserveTime = None
         reservePw = None
+        reserveTime = "13:00"
+        if askyesno("시간","시간 설정하겠습니까?") == True:
+            for tt in range(11,20,1):
+                if askyesno("시간",f"{tt}:00") == True:
+                    reserveTime = ""+str(tt)+":00"
+                    break
         weekend = askyesno("주말","이번주 주말")
         if weekend == True:
             saturday = askyesno("토요일","토요일")
@@ -226,10 +254,9 @@ if __name__ == "__main__":
             if saturday == False:
                 targetWeekDay = 6
             todayWeekDay = date.today().weekday()
-            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7 +7
+            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7 
             reserveDate = date.today() + timedelta(days=timeDelta)
             reserveDate = (str(reserveDate)).replace("-","")
-            reserveTime = "13:00"
             reservePw = str(randrange(9000) + 1000)
         else:
             while True:
@@ -285,10 +312,11 @@ if __name__ == "__main__":
     if reserveName == None:
         reserveName = familyNames[randrange(len(familyNames))] + frequentNames[randrange(len(frequentNames))]
 
+    doPayco = askyesno("payco","payco")
    
     browser = None    
     chromeOptions = webdriver.ChromeOptions()
-    if ATCOMPANY == False:
+    if jhconstants.ATCOMPANY == False:
         import chromedriver_autoinstaller
         path = chromedriver_autoinstaller.install(cwd=True)
         browser = webdriver.Chrome(executable_path=path, options=chromeOptions)        
@@ -299,7 +327,9 @@ if __name__ == "__main__":
 
     jhm = JHSelenium(browser,wait)
 
-    LoginPayco(jhm, "cutehanjh@gmail.com", "F)2\x15´\\F(ß4\x1b")
+    
+    if doPayco == True:
+        LoginPayco(jhm, "cutehanjh@gmail.com", jhconstants.PAYCOPW)
     reserveXpho(jhm, themaName=themaName,storeName=storeName,reserveName=reserveName,
                 reservePb=reservePb, reservePw=reservePw, reserveDate=reserveDate,reserveTime=reserveTime)
     
