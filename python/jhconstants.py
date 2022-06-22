@@ -1,2 +1,3 @@
 ATCOMPANY = True
 PAYCOPW = ""
+DEBUG = True
