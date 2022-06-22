@@ -1,6 +1,3 @@
-ATCOMPANY = True
-DEBUG = True
-
 from datetime import date, timedelta
 from multiprocessing.dummy import active_children
 from time import sleep
@@ -21,6 +18,7 @@ import datetime
 
 import jhmodule
 from jhmodule import JHSelenium
+import jhconstants
 
 
 
@@ -28,7 +26,7 @@ if __name__ == "__main__":
   
     browser = None    
     chromeOptions = webdriver.ChromeOptions()
-    if ATCOMPANY == False:
+    if jhconstants.ATCOMPANY == False:
         import chromedriver_autoinstaller
         path = chromedriver_autoinstaller.install(cwd=True)
         browser = webdriver.Chrome(executable_path=path, options=chromeOptions)        
@@ -40,14 +38,15 @@ if __name__ == "__main__":
     jhm = JHSelenium(browser,wait)
 
     targetDate = 27
-    if DEBUG == True:
+    if jhconstants.DEBUG == True:
         debugCount = 0
     while True:
         try:
-            if DEBUG == True:
+            if jhconstants.DEBUG == True:
                 debugCount+=1
                 if debugCount==5:
                     targetDate = 26
+            sleep(0.5)
             print(datetime.datetime.today())
             browser.get("https://oasismuseum.com/ticket?date=2022-06-"+str(targetDate)+"&id=1")
             result = browser.switch_to.alert

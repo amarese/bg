@@ -42,7 +42,7 @@ while True:
             wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".q-btn:nth-child(2) .block")))
             driver.find_element(By.CSS_SELECTOR, ".q-btn:nth-child(2) .block").click()
 
-            targetDate = 29
+            targetDate = 30
             debugCount = 0
             idx = 3
             while True:
@@ -64,11 +64,11 @@ while True:
             driver.find_element(By.XPATH,"//footer/div/button/span[2]").click()
 
             if DEBUGMOD == True:
-                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[2]")))
-                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[2]")
+                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[7]")))
+                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[7]")
             else:
-                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]")))
-                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[3]")
+                wait.until(EC.element_to_be_clickable((By.XPATH,"//div[2]/div/div[2]/div[2]/button[7]")))
+                clickBtn = driver.find_element(By.XPATH,"//div[2]/div/div[2]/div[2]/button[7]")
 
             
             while clickBtn.text.find("불가") != -1:
@@ -82,8 +82,12 @@ while True:
         wait.until(EC.element_to_be_clickable((By.XPATH,"//footer/div/button/span[2]")))
         driver.find_element(By.XPATH,"//footer/div/button[2]/span[2]").click()
 
-        #wait.until(EC.element_to_be_clickable((By.NAME, "nickname")))
-        #driver.find_element(By.NAME, "nickname").send_keys("정성구")
+        try:
+            wait.until(EC.element_to_be_clickable((By.NAME, "nickname")))
+            driver.find_element(By.NAME, "nickname").send_keys("정성구")
+        except:
+            pass
+
         #driver.find_element(By.NAME, "tel").send_keys("28761575")
         #sleep(0.3)
         #driver.find_element(By.XPATH,"//div[2]/div/button/span[2]/span").click()
