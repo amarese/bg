@@ -1,5 +1,3 @@
-DEBUG = False
-
 import jhconstants
 from datetime import date, timedelta
 from multiprocessing.dummy import active_children
@@ -21,6 +19,8 @@ import datetime
 
 import jhmodule
 from jhmodule import JHSelenium
+
+import pyautogui
 
 
 def getReverse(val:str):
@@ -69,167 +69,186 @@ def getDis(time1, time2):
     
 def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, reserveTime:str, 
                 reserveName:str, reservePb:str, reservePw:str,  reserveEmail:str = None) -> None:
+    while True:
+        try:
     
-    if reserveEmail == None:
-        emCom = "@naver.com"
-        if randrange(2)==0:
-            emCom = "@google.com"
-        reserveEmail = reservePb + emCom
-    
-    #browser.maximize_window()
-    JHM.browser.get("https://www.xphobia.net/reservation/reservation_check.php")
-    
-    JHM.waitAndClick(By.ID, "cate_3")
-    JHM.waitAndClick(By.ID, storeName)
-
-    jsCommand = "document.getElementsByClassName('input_date')[0].value='"+reserveDate+"'"
-    JHM.browser.execute_script(jsCommand)
-
-    JHM.waitAndClick(By.ID, themaName)
-        
-    JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
-    timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
-    targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
-    bestGap = None
-    bestBtn = None
-    for timeBtn in timeLists:
-        tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
-        curGap = getDis(tempTime, targetTime)
-        if bestBtn == None or curGap < bestGap:
-            bestBtn = timeBtn
-            bestGap = curGap
+            if reserveEmail == None:
+                emCom = "@naver.com"
+                if randrange(2)==0:
+                    emCom = "@google.com"
+                reserveEmail = reservePb + emCom
             
-    
-    if bestBtn.get_attribute('class') != "":
-        if askyesno("실패","이미 예약됨, 반복?"):
-            reserveTime = bestBtn.get_attribute('id')
-            while True:
+            #browser.maximize_window()
+            JHM.browser.get("https://www.xphobia.net/reservation/reservation_check.php")
+            
+            JHM.waitAndClick(By.ID, "cate_3")
+            JHM.waitAndClick(By.ID, storeName)
+
+            jsCommand = "document.getElementsByClassName('input_date')[0].value='"+reserveDate+"'"
+            JHM.browser.execute_script(jsCommand)
+            
+            bLoop = True
+            while bLoop:
                 JHM.waitAndClick(By.ID, themaName)
+                    
                 JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
-                bestBtn=JHM.browser.find_element(By.ID,reserveTime)
-                if bestBtn.get_attribute('class') == "":
-                    break
-                sleep(1.0)
-        else:
-            JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
-            timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
-            targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
-            bestGap = None
-            bestBtn = None
-            for timeBtn in timeLists:
-                tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
-                curGap = getDis(tempTime, targetTime)
-                if bestBtn == None or curGap < bestGap:
-                    bestBtn = timeBtn
-                    bestGap = curGap
+                timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+                targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
+                bestGap = None
+                bestBtn = None
+                for timeBtn in timeLists:
+                    tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
+                    curGap = getDis(tempTime, targetTime)
+                    if bestBtn == None or curGap < bestGap:
+                        bestBtn = timeBtn
+                        bestGap = curGap
+                        
+                
+                if bestBtn.get_attribute('class') != "":
+                    if jhmodule.askyesno("실패","이미 예약됨, 반복?",True):
+                        reserveTime = bestBtn.get_attribute('id')
+                        while True:
+                            JHM.waitAndClick(By.ID, themaName)
+                            JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+                            bestBtn=JHM.browser.find_element(By.ID,reserveTime)
+                            if bestBtn.get_attribute('class') == "":
+                                break
+                            sleep(0.5)
+                            
+                    else:
+                        JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#cl3 > li")))
+                        timeLists = JHM.browser.find_element(By.ID, "cl3").find_elements(By.CSS_SELECTOR,"li")
+                        targetTime = datetime.datetime.strptime(reserveTime,"%H:%M")
+                        bestGap = None
+                        bestBtn = None
+                        for timeBtn in timeLists:
+                            tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
+                            curGap = getDis(tempTime, targetTime)
+                            if bestBtn == None or curGap < bestGap:
+                                bestBtn = timeBtn
+                                bestGap = curGap
 
-        
-    if bestBtn.get_attribute('class') != "":
-        askyesno("실패","가능한 시간 없음")
-        return
-    
-    reserveTime = bestBtn.get_attribute('id')
-    bestBtn.click()
+                
+                    
+                if bestBtn.get_attribute('class') != "":
+                    askyesno("실패","가능한 시간 없음")
+                    return
+                
+                reserveTime = bestBtn.get_attribute('id')
+                bestBtn.click()
 
-    
-    jsCommand = "submitNext()"
-    JHM.browser.execute_script(jsCommand)
 
-    # 2nd page
-    JHM.wait.until(EC.element_to_be_clickable((By.ID, "agree")))
-    jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
-    browser.execute_script(jsCommand)
-    
-    
-    #third page
-    
-    JHM.wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
-    ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
+                JHM.waitAndClick(By.CLASS_NAME,"next_btn")
+                try:
+                    al = JHM.browser.switch_to.alert
+                    al.accept()
+                except:
+                    bLoop = False
+            
+                
+                
+            #jsCommand = "submitNext()"
+            #JHM.browser.execute_script(jsCommand)
 
-    nameText = JHM.browser.find_element(By.ID,"event_disc")
-    JHM.browser.execute_script("arguments[0].scrollIntoView();", nameText)
+            # 2nd page
+            JHM.wait.until(EC.element_to_be_clickable((By.ID, "agree")))
+            jsCommand="document.getElementById('agree').checked=true;javascript:guest_submit(document.flogin);"
+            browser.execute_script(jsCommand)
+            
+            
+            #third page
+            
+            JHM.wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"btn_submit")))
+            ppoid = browser.find_element(By.NAME,"pp_oid").get_attribute('value')
 
-    jsCommand="document.getElementById('rena').value='"+reserveName+"';\
-        document.getElementById('reph').value='"+reservePb+"';\
-        document.getElementById('remd').value='"+reserveEmail+"';\
-        document.getElementsByName('te_pass')[0].type='text';\
-        document.getElementsByName('te_pass')[0].value='"+str(reservePw)+"';\
-        document.getElementById('od_settle_card').checked=true;\
-        document.getElementById('terms1').checked=true;\
-        document.getElementById('terms2').checked=true;"
+            nameText = JHM.browser.find_element(By.ID,"event_disc")
+            JHM.browser.execute_script("arguments[0].scrollIntoView();", nameText)
 
-    JHM.browser.execute_script(jsCommand)
-    
-    tempReserveTime = reserveTime.replace(":","")
-    with open('page_'+f"{reserveDate}_{themaName}_{tempReserveTime}_"+'.txt', 'a+', -1, 'utf-8') as f:
-        f.write(f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
+            jsCommand="document.getElementById('rena').value='"+reserveName+"';\
+                document.getElementById('reph').value='"+reservePb+"';\
+                document.getElementById('remd').value='"+reserveEmail+"';\
+                document.getElementsByName('te_pass')[0].type='text';\
+                document.getElementsByName('te_pass')[0].value='"+str(reservePw)+"';\
+                document.getElementById('od_settle_card').checked=true;\
+                document.getElementById('terms1').checked=true;\
+                document.getElementById('terms2').checked=true;"
 
-    if jhconstants.ATCOMPANY  == False:
-        chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
-        chat = telegram.Bot(token = chat_token)
-        chat_id = 763073279
-        chat.sendMessage(chat_id = chat_id, text=f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
-    
-        gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
-        sh = gc.open("비트포비아양도").worksheet("비트")
-        rowIdx = 1
-        while len(sh.get('F'+str(rowIdx))) != 0:
-            rowIdx += 1
-        sh.update('F'+str(rowIdx),reserveDate)
-        sh.update('G'+str(rowIdx),reserveTime)
-        sh.update('J'+str(rowIdx),reserveName)
-        sh.update('K'+str(rowIdx),reservePb)
-        sh.update('L'+str(rowIdx),reservePw)
-        sh.update('O'+str(rowIdx),ppoid)
-        
-    
-    respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
-    while respond == False:
-        respond = askyesno('종료', '종료?')
-        if respond == True:
-            return
-        respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
-    
-    
-    
-    JHM.waitAndClick(By.CLASS_NAME,"btn_submit")
-    
-    JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'iframe')))
-    JHM.browser.switch_to.frame(JHM.browser.find_element(By.CSS_SELECTOR,'iframe').get_attribute('name'))
+            JHM.browser.execute_script(jsCommand)
+            
+            tempReserveTime = reserveTime.replace(":","")
+            with open('page_'+f"{reserveDate}_{themaName}_{tempReserveTime}_"+'.txt', 'a+', -1, 'utf-8') as f:
+                f.write(f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
 
-    
-    
-    JHM.waitAndClick(By.ID,"inputAll")
-        
-    JHM.waitAndClick(By.XPATH,"//a[@id='payCode20']")
-    
-    JHM.waitAndClick(By.XPATH,"//a/span[2]")
-    sleep(5)
+            if jhconstants.ATCOMPANY  == False:
+                chat_token = "942328115:AAFDAj7ghqSH2izU12fkYHtV7PMDhxrGnhc"
+                chat = telegram.Bot(token = chat_token)
+                chat_id = 763073279
+                chat.sendMessage(chat_id = chat_id, text=f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
+            
+                gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
+                sh = gc.open("비트포비아양도").worksheet("비트")
+                rowIdx = 1
+                while len(sh.get('F'+str(rowIdx))) != 0:
+                    rowIdx += 1
+                sh.update('F'+str(rowIdx),reserveDate)
+                sh.update('G'+str(rowIdx),reserveTime)
+                sh.update('J'+str(rowIdx),reserveName)
+                sh.update('K'+str(rowIdx),reservePb)
+                sh.update('L'+str(rowIdx),reservePw)
+                sh.update('O'+str(rowIdx),ppoid)
+                
+            
+            respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
+            while respond == False:
+                respond = askyesno('종료', '종료?')
+                if respond == True:
+                    return
+                respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
+            
+            
+            
+            JHM.waitAndClick(By.CLASS_NAME,"btn_submit")
+            
+            JHM.wait.until(EC.presence_of_element_located((By.CSS_SELECTOR,'iframe')))
+            JHM.browser.switch_to.frame(JHM.browser.find_element(By.CSS_SELECTOR,'iframe').get_attribute('name'))
 
-    for handle in JHM.browser.window_handles:
-        JHM.browser.switch_to.window(handle)
-        if JHM.browser.title=='PAYCO':
+            
+            
+            JHM.waitAndClick(By.ID,"inputAll")
+            
+            JHM.waitAndClick(By.XPATH,"//a[@id='payCode20']")
+            
+            JHM.waitAndClick(By.XPATH,"//a/span[2]")
+            
+            curLoop = True
+            while curLoop:
+                for handle in JHM.browser.window_handles:
+                    JHM.browser.switch_to.window(handle)
+                    if JHM.browser.title=='PAYCO':
+                        curLoop = False
+                        break
+
+            JHM.waitAndClick(By.CSS_SELECTOR,"#pgCardList_nextBtn > .sp")
+            
+            JHM.waitAndClick(By.ID,"btnPayment")
+            
+            respond = askyesno("완료","완료")
             break
-
-
-    JHM.waitAndClick(By.CSS_SELECTOR,"#pgCardList_nextBtn > .sp")
-    
-    JHM.waitAndClick(By.ID,"btnPayment")
-    
-    respond = askyesno("완료","완료")
+        except:
+            print("error occur")
     return
 
 if __name__ == "__main__":
   
     
-    themaNames = ['화생설화 : Blooming','강남목욕탕','대호시장 살인사건','전래동 : 자살사건']
-    storeNames = ['던전101','강남 던전','강남 던전','던전101']
+    themaNames = ['강남목욕탕','화생설화 : Blooming','대호시장 살인사건','전래동 : 자살사건']
+    storeNames = ['강남 던전','던전101','강남 던전','던전101']
 
-    if DEBUG == False:
+    if jhconstants.DEBUG == False:
 
         idx = 0
         for i in range(len(themaNames)):
-            answer = askyesno('테마',themaNames[i])    
+            answer = jhmodule.askyesno('테마',themaNames[i], True)    
             if answer== True:
                 idx = i
                 break
@@ -242,14 +261,14 @@ if __name__ == "__main__":
         reserveTime = None
         reservePw = None
         reserveTime = "13:00"
-        if askyesno("시간","시간 설정하겠습니까?") == True:
+        if jhmodule.askyesno("시간","시간 설정하겠습니까?",False) == True:
             for tt in range(11,20,1):
                 if askyesno("시간",f"{tt}:00") == True:
                     reserveTime = ""+str(tt)+":00"
                     break
-        weekend = askyesno("주말","이번주 주말")
+        weekend = jhmodule.askyesno("주말","이번주 주말",True)
         if weekend == True:
-            saturday = askyesno("토요일","토요일")
+            saturday = jhmodule.askyesno("토요일","토요일",True)
             targetWeekDay = 5
             if saturday == False:
                 targetWeekDay = 6
@@ -265,7 +284,7 @@ if __name__ == "__main__":
                 if breakLoop == True:
                     break
             
-        autoMode = askyesno("자동모드","자동모드로 실행")
+        autoMode = jhmodule.askyesno("자동모드","자동모드로 실행",True)
         if autoMode == False:
             while True:
                 reserveName = askstring('이름','이름 (ex. 홍길동)')
@@ -275,6 +294,18 @@ if __name__ == "__main__":
                 breakLoop = askyesno('확인',f'이름:{reserveName} 폰:{reservePb} 시간:{reserveTime}')
                 if breakLoop == True:
                     break
+                
+        doPayco = jhmodule.askyesno("payco","payco",True)
+    else:
+        themaName = themaNames[0]
+        storeName = storeNames[0]
+        reserveName = '김상호'
+        reservePb = '01051233215'
+        reserveDate = '20220702'
+        reserveTime = '13:00'
+        reservePw = '123456'
+        doPayco= False
+        
                 
             
 
@@ -312,7 +343,7 @@ if __name__ == "__main__":
     if reserveName == None:
         reserveName = familyNames[randrange(len(familyNames))] + frequentNames[randrange(len(frequentNames))]
 
-    doPayco = askyesno("payco","payco")
+    
    
     browser = None    
     chromeOptions = webdriver.ChromeOptions()
