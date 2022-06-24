@@ -13,7 +13,6 @@ import telegram
 import sys
 from tkinter.simpledialog import *
 from random import randrange
-from selenium.webdriver.common.action_chains import ActionChains
 import gspread
 import datetime
 
@@ -21,6 +20,7 @@ import jhmodule
 from jhmodule import JHSelenium
 
 import pyautogui
+from python_imagesearch.imagesearch import imagesearch
 
 
 def getReverse(val:str):
@@ -232,6 +232,20 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
             
             JHM.waitAndClick(By.ID,"btnPayment")
             
+            JHM.wait(EC.element_to_be_clickable((By.ID,"A_2")))
+            
+            
+            # # 비번 입력
+            # for i in range(6):
+            #     pos = imagesearch("./python/num/"+i+"num.png")
+            #     sleep(0.5)
+            #     pyautogui.moveTo(pos[0],pos[1])
+            #     pyautogui.click()
+            
+            JHM.waitAndClick(By.ID,"payDoneBtn")
+            
+            
+            
             respond = askyesno("완료","완료")
             break
         except:
@@ -366,4 +380,4 @@ if __name__ == "__main__":
     
     
     print("Done")
-    input()
+    input() 
