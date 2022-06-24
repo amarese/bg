@@ -68,7 +68,7 @@ def getDis(time1, time2):
     return time1-time2
     
 def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, reserveTime:str, 
-                reserveName:str, reservePb:str, reservePw:str,  reserveEmail:str = None) -> None:
+                reserveName:str, reservePb:str, reservePw:str,  recurTry:bool, reserveEmail:str = None) -> None:
     while True:
         try:
     
@@ -105,7 +105,7 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
                         
                 
                 if bestBtn.get_attribute('class') != "":
-                    if jhmodule.askyesno("실패","이미 예약됨, 반복?",True):
+                    if recurTry == True:
                         reserveTime = bestBtn.get_attribute('id')
                         while True:
                             JHM.waitAndClick(By.ID, themaName)
@@ -124,7 +124,7 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
                         for timeBtn in timeLists:
                             tempTime = datetime.datetime.strptime(timeBtn.get_attribute('id'),"%H:%M")
                             curGap = getDis(tempTime, targetTime)
-                            if bestBtn == None or curGap < bestGap:
+                            if timeBtn.get_attribute('class') == "" and (bestBtn == None or curGap < bestGap):
                                 bestBtn = timeBtn
                                 bestGap = curGap
 
@@ -185,25 +185,13 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
                 chat_id = 763073279
                 chat.sendMessage(chat_id = chat_id, text=f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reserveEmail}\t{reservePw}\t{ppoid}")
             
-                gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
-                sh = gc.open("비트포비아양도").worksheet("비트")
-                rowIdx = 1
-                while len(sh.get('F'+str(rowIdx))) != 0:
-                    rowIdx += 1
-                sh.update('F'+str(rowIdx),reserveDate)
-                sh.update('G'+str(rowIdx),reserveTime)
-                sh.update('J'+str(rowIdx),reserveName)
-                sh.update('K'+str(rowIdx),reservePb)
-                sh.update('L'+str(rowIdx),reservePw)
-                sh.update('O'+str(rowIdx),ppoid)
-                
-            
-            respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
-            while respond == False:
-                respond = askyesno('종료', '종료?')
-                if respond == True:
-                    return
+            if recurTry == False:
                 respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
+                while respond == False:
+                    respond = askyesno('종료', '종료?')
+                    if respond == True:
+                        return
+                    respond = askyesno('확인', f"{reserveDate}\t{reserveTime}\t{themaName}\t{reserveName}\t{reservePb}\t{reservePw}\t{ppoid}")
             
             
             
@@ -231,25 +219,51 @@ def reserveXpho(JHM:JHSelenium, themaName:str, storeName:str, reserveDate:str, r
             JHM.waitAndClick(By.CSS_SELECTOR,"#pgCardList_nextBtn > .sp")
             
             JHM.waitAndClick(By.ID,"btnPayment")
+
+
+            JHM.wait.until(EC.element_to_be_clickable((By.ID,"lazyModalDialogIframe")))
+            newFrame = JHM.browser.find_element(By.ID,'lazyModalDialogIframe')
+            JHM.browser.switch_to.frame(newFrame)
+
             
-            JHM.wait(EC.element_to_be_clickable((By.ID,"A_2")))
+            JHM.wait.until(EC.element_to_be_clickable((By.ID,"vkeyboard")))
             
             
             # # 비번 입력
-            # for i in range(6):
-            #     pos = imagesearch("./python/num/"+i+"num.png")
-            #     sleep(0.5)
-            #     pyautogui.moveTo(pos[0],pos[1])
-            #     pyautogui.click()
+            for i in range(6):
+                pos = imagesearch("./python/num/"+str(i+1)+"num.png")
+                sleep(0.25)
+                pyautogui.moveTo(pos[0],pos[1])
+                pyautogui.click()
             
+            JHM.browser.switch_to.window(JHM.browser.window_handles[0])
+            JHM.browser.switch_to.frame(JHM.browser.find_elements(By.CSS_SELECTOR,'iframe')[0].get_attribute('name'))
+
             JHM.waitAndClick(By.ID,"payDoneBtn")
             
+            JHM.wait.until(EC.alert_is_present())
+            JHM.browser.switch_to.alert.accept()
             
+            if jhconstants.ATCOMPANY  == False:
             
-            respond = askyesno("완료","완료")
+                gc = gspread.service_account(filename="C:/Users/abcde/vscode/bg/bg/python/key.json")
+                sh = gc.open("비트포비아양도").worksheet("비트")
+                rowIdx = 1
+                while len(sh.get('F'+str(rowIdx))) != 0:
+                    rowIdx += 1
+                sh.update('F'+str(rowIdx),reserveDate)
+                sh.update('G'+str(rowIdx),reserveTime)
+                sh.update('J'+str(rowIdx),reserveName)
+                sh.update('K'+str(rowIdx),reservePb)
+                sh.update('L'+str(rowIdx),reservePw)
+                sh.update('O'+str(rowIdx),ppoid)
             break
-        except:
-            print("error occur")
+        except Exception:
+            while len(JHM.browser.window_handles)>1:
+                JHM.browser.switch_to.window(JHM.browser.window_handles[1])
+                JHM.browser.close()
+            JHM.browser.switch_to.window(JHM.browser.window_handles[0])
+
     return
 
 if __name__ == "__main__":
@@ -262,7 +276,7 @@ if __name__ == "__main__":
 
         idx = 0
         for i in range(len(themaNames)):
-            answer = jhmodule.askyesno('테마',themaNames[i], True)    
+            answer = askyesno('테마',themaNames[i])    
             if answer== True:
                 idx = i
                 break
@@ -273,32 +287,39 @@ if __name__ == "__main__":
         reservePb = None
         reserveDate = None
         reserveTime = None
-        reservePw = None
+        reservePw = str(randrange(9000) + 1000)
         reserveTime = "13:00"
-        if jhmodule.askyesno("시간","시간 설정하겠습니까?",False) == True:
+        if askyesno("시간","시간 설정하겠습니까?") == True:
             for tt in range(11,20,1):
                 if askyesno("시간",f"{tt}:00") == True:
                     reserveTime = ""+str(tt)+":00"
                     break
-        weekend = jhmodule.askyesno("주말","이번주 주말",True)
-        if weekend == True:
-            saturday = jhmodule.askyesno("토요일","토요일",True)
-            targetWeekDay = 5
-            if saturday == False:
-                targetWeekDay = 6
-            todayWeekDay = date.today().weekday()
-            timeDelta = (targetWeekDay - todayWeekDay+ 7) % 7 
-            reserveDate = date.today() + timedelta(days=timeDelta)
-            reserveDate = (str(reserveDate)).replace("-","")
-            reservePw = str(randrange(9000) + 1000)
-        else:
+        recur = askyesno("시간","반복?")
+        dateTry = 0
+        targetDayTemp = date.today() + timedelta(days = 1)
+        dateSetting = False
+        while dateTry < 6:
+            while targetDayTemp.weekday() != 5 and targetDayTemp.weekday() != 6:
+                targetDayTemp = targetDayTemp + timedelta(days=1)
+            dateTry += 1
+            weekTemp = '토'
+            if targetDayTemp.weekday() == 6:
+                weekTemp='일'
+            getRet = askyesno("날짜",f"{str(targetDayTemp)} ({weekTemp})")
+            if getRet == True:
+                reserveDate = (str(targetDayTemp)).replace("-","")
+                dateSetting = True
+                break
+            else:
+                targetDayTemp = targetDayTemp + timedelta(days=1)
+        if dateSetting == False:
             while True:
                 reserveDate = askstring("날짜","날짜 (ex. 20220601)")        
                 breakLoop = askyesno("확인",f"날짜:{reserveDate}")
                 if breakLoop == True:
                     break
             
-        autoMode = jhmodule.askyesno("자동모드","자동모드로 실행",True)
+        autoMode = askyesno("자동모드","자동모드로 실행")
         if autoMode == False:
             while True:
                 reserveName = askstring('이름','이름 (ex. 홍길동)')
@@ -309,7 +330,7 @@ if __name__ == "__main__":
                 if breakLoop == True:
                     break
                 
-        doPayco = jhmodule.askyesno("payco","payco",True)
+        doPayco = askyesno("payco","payco")
     else:
         themaName = themaNames[0]
         storeName = storeNames[0]
@@ -376,7 +397,7 @@ if __name__ == "__main__":
     if doPayco == True:
         LoginPayco(jhm, "cutehanjh@gmail.com", jhconstants.PAYCOPW)
     reserveXpho(jhm, themaName=themaName,storeName=storeName,reserveName=reserveName,
-                reservePb=reservePb, reservePw=reservePw, reserveDate=reserveDate,reserveTime=reserveTime)
+                reservePb=reservePb, reservePw=reservePw, reserveDate=reserveDate,reserveTime=reserveTime, recurTry=recur)
     
     
     print("Done")

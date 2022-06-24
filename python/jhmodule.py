@@ -23,4 +23,5 @@ class JHSelenium:
 def askyesno(title, contents, defaultValue = True):
     if jhconstants.DEBUG == True:
         return defaultValue
-    return askyesno(title,contents)
+    ans = askyesno(title,contents)
+    return ans
