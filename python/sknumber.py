@@ -1,6 +1,7 @@
 from time import sleep
 from playwright.sync_api import Playwright, sync_playwright, expect
 from random import randrange
+import jhconstants
 
 def run(#playwright: Playwright, 
         numOfRet : int) -> list[str]:
@@ -21,7 +22,7 @@ def run(#playwright: Playwright,
             # Press Tab
             page.locator("[placeholder=\"비밀번호\"]").click()
             # Fill [placeholder="비밀번호"]
-            page.locator("[placeholder=\"비밀번호\"]").fill("15751ace")
+            page.locator("[placeholder=\"비밀번호\"]").fill(jhconstants.SKPW)
             # Click #authLogin
             # with page.expect_navigation(url="https://www.tworld.co.kr/normal.do?serviceId=S_PHON0014&viewId=V_CENT0131"):
             with page.expect_navigation():

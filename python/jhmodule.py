@@ -3,6 +3,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import jhconstants
+from python_imagesearch.imagesearch import imagesearch
+import pyautogui
+def clickImage(imgPath):
+    pos = imagesearch(imgPath)
+    if pos[0] == -1:
+        return
+    pyautogui.moveTo(pos[0],pos[1])
+    pyautogui.click()
+
 class JHSelenium:
     def __init__(self,browser:webdriver.Chrome, wait:WebDriverWait) -> None:
         self.browser = browser
