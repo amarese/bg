@@ -29,7 +29,7 @@ searchTime = None
 while True:
     if debugMode == True:
         phoneNumber = '010-8998-9272'
-        password = "15751!ace"
+        password = ""
         srcLoc = '대전'
         descLoc = '동탄'
         targetDate = '2022-06-13'
