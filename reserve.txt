@@ -1,0 +1,6 @@
+document.getElementsByName('rev_days')[0].value='2022-08-17';
+document.getElementsByName('name')[0].value='김레오';
+document.getElementsByName('mobile2')[0].value='1234';
+document.getElementsByName('mobile3')[0].value='5678';
+document.getElementsByName('ck_agree')[0].checked=true;
+fun_submit();
