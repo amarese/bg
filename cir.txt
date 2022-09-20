@@ -1,0 +1,30 @@
+Machine Learning
+ - Statistical Learning
+  -- Introduction
+   --- ML Introduction
+   --- What is Machine Learning? (Hinton)
+   --- Introduction
+   --- Python Setup Guide
+   --- Lab : ML Exercise: Introduction
+   --- Lab : ML Exercise: Understanding Dataset
+  -- Statistical Learning
+
+ - Supervised Learning
+  -- Linear Regression
+  -- Classification
+  -- Cross-validation and the bootstrap
+  -- Linear Model Selection and Regularization
+  -- Nonlinear
+  -- Tree-based Methods
+  -- Support vector machines
+
+ - Unsupervised Learning 
+
+ - Machine Leraning Research
+   --- NFL and DeepLearning
+   --- Statistical Learning Basics and extras
+   --- Ensemble Princeton Leon Bottou
+   --- EM HMM-converted
+   --- Feature Selection techniques in Bioinf, Imbalanced Data SMOTE
+   --- Anomaly detection survey
+   --- Hyperparameter Optimization for Machine Learning Algorithms
