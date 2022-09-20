@@ -28,3 +28,25 @@ Machine Learning
    --- Feature Selection techniques in Bioinf, Imbalanced Data SMOTE
    --- Anomaly detection survey
    --- Hyperparameter Optimization for Machine Learning Algorithms
+
+
+Deep Learning
+ - Introcution
+  -- Mathematics for Deep Learning
+
+ - Modern Practical Deep Networks
+  -- Deep FeedForward Networks
+  -- Convolustional Neural Networks
+  -- Recurrent Neural Networks
+
+ - Regularization & Optimization
+  -- Regularization for Deep Learning
+  -- Optimization for Training Deep Models
+
+ - Deep Learning Research
+  -- Autoencoder
+  -- Practical Methodology & Applications
+   --- Practical Methodology
+   --- Application: Computer Vision
+   --- Application: NLP
+  -- Generative Models
